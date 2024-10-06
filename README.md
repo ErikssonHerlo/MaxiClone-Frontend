@@ -1,109 +1,133 @@
-# MaxiFrontend - Software Avanzado
+# MaxiFrontend - Advanced Software
 
-Este repositorio contiene el frontend de la aplicación **MaxiClone - Control de Suministros**  para la gestión de pedidos, incidencias y devoluciones entre tiendas y bodegas centrales. El proyecto está desarrollado utilizando **React** con **TypeScript** para crear una interfaz de usuario modular y escalable. El backend será manejado por un conjunto de microservicios desarrollados en **SpringBoot (Java)**.
+This repository contains the frontend of the **MaxiClone - Supply Control** application for managing orders, incidents, and returns between stores and central warehouses. The project is developed using **React** with **TypeScript** to create a modular and scalable user interface. The backend is managed by a set of microservices developed in **SpringBoot (Java)**.
 
-## Descripción General
+## General Description
 
-La aplicación está diseñada para manejar múltiples tipos de usuarios (tiendas, supervisores, usuarios de bodegas, administradores) y permitirá gestionar pedidos, envíos, incidencias y devoluciones, con diferentes flujos de trabajo según el rol del usuario. 
+The application is designed to handle multiple user types (stores, supervisors, warehouse users, administrators) and will allow managing orders, shipments, incidents, and returns with different workflows depending on the user's role.
 
-El sistema contará con módulos para:
-- Tiendas (crear pedidos, recibir envíos, generar incidencias y devoluciones).
-- Bodegas (gestionar envíos, incidencias y devoluciones).
-- Supervisores (aprobar o rechazar pedidos).
-- Administradores (gestión de usuarios y visualización de reportes).
+The system will have modules for:
+- Stores (create orders, receive shipments, generate incidents, and returns).
+- Warehouses (manage shipments, incidents, and returns).
+- Supervisors (approve or reject orders).
+- Administrators (manage users and visualize reports).
 
-El frontend es completamente interactivo, permitiendo a los usuarios trabajar eficientemente desde cualquier dispositivo.
+The frontend is fully interactive, allowing users to work efficiently from any device.
 
-## Estructura del Proyecto
+## Project Structure
 
-El proyecto sigue una estructura modular y organizada para facilitar la escalabilidad y mantenibilidad del código:
+The project follows a modular and organized structure to facilitate scalability and maintainability of the code, using **Vertical Slices** to group functionalities by module. Each module contains its own pages, components, hooks, services, and types, allowing for easy navigation and code reuse.
 
 ```plaintext
 src/
-├── components/          # Componentes reutilizables
-├── pages/               # Vistas para cada página
-├── services/            # Lógica de servicios y llamadas a APIs
-├── hooks/               # Hooks personalizados
-├── utils/               # Utilidades y funciones auxiliares
-├── types/               # Definición de tipos e interfaces de TypeScript
-├── assets/              # Recursos como imágenes, íconos y estilos
-└── App.tsx              # Componente raíz
+├── features/           # Each main module or functionality
+│   ├── admin/          # Administration module functionalities
+│   │   ├── components/ # Module-specific components for Administration
+│   │   ├── hooks/      # Module-specific hooks
+│   │   ├── pages/      # Module-specific views
+│   │   ├── services/   # API calls related to Administration
+│   │   └── types/      # Module-specific types and interfaces
+│   ├── warehouse/      # Warehouse functionalities
+│   │   ├── components/ 
+│   │   ├── hooks/     
+│   │   ├── pages/     
+│   │   ├── services/  
+│   │   └── types/    
+│   ├── store/          # Store functionalities
+│   │   ├── components/ 
+│   │   ├── hooks/     
+│   │   ├── pages/     
+│   │   ├── services/  
+│   │   └── types/    
+│   └── supervisor/     # Supervisor functionalities
+│       ├── components/ 
+│       ├── hooks/     
+│       ├── pages/     
+│       ├── services/  
+│       └── types/    
+├── common/             # Reusable code between modules
+│   ├── components/     # Global reusable components (e.g. buttons, modal, layouts)
+│   ├── hooks/          # Shared hooks (e.g. useAuth, useFetch)
+│   ├── services/       # Shared services (e.g. auth, notifications)
+│   ├── styles/         # Global styles or themes
+│   └── types/          # Shared global types
+└── App.tsx             # Main entry point of the application
 ```
 
-## Requerimientos
+## Requirements
 
-Asegúrate de tener instalado lo siguiente:
+Ensure you have the following installed:
 
 - [Node.js](https://nodejs.org/) >= 18.0.0
-- npm >= 8.0.0 o [yarn](https://yarnpkg.com/)
+- npm >= 8.0.0 or [yarn](https://yarnpkg.com/)
 
-## Instalación y Configuración
+## Installation and Setup
 
-Sigue estos pasos para clonar el proyecto y ejecutar el entorno de desarrollo en local:
+Follow these steps to clone the project and run the development environment locally:
 
-1. Clona este repositorio:
+1. Clone this repository:
    ```bash
-   git clone https://github.com/tu-usuario/control-suministros-frontend.git
-   cd control-suministros-frontend
+   git clone https://github.com/erikssonherlo/MaxiClone-Frontend.git
+   cd MaxiClone-Frontend
    ```
 
-2. Instala las dependencias:
+2. Install the dependencies:
    ```bash
    npm install
-   # o con yarn
+   # or with yarn
    yarn install
    ```
 
-3. Inicia el servidor de desarrollo:
+3. Start the development server:
    ```bash
    npm run dev
-   # o con yarn
+   # or with yarn
    yarn dev
    ```
 
-Esto levantará un servidor de desarrollo en `http://localhost:3000`.
+This will start a development server at `http://localhost:3000`.
 
-## Características Principales
+## Key Features
 
-- **Componentes React reutilizables**: Cada parte de la interfaz está dividida en componentes reutilizables y fáciles de mantener.
-- **TypeScript**: Utilizamos TypeScript para garantizar una tipificación estricta y reducir errores en tiempo de desarrollo.
-- **Rutas dinámicas**: Navegación entre las diferentes páginas de la aplicación con React Router.
-- **Interfaz intuitiva**: Diseño centrado en la usabilidad y experiencia del usuario.
-- **Sistema de notificaciones**: Notificaciones en pantalla y mediante correo electrónico para alertar a los usuarios sobre actualizaciones importantes.
-- **Soporte para temas**: Se puede cambiar entre modo claro y oscuro.
+- **Reusable React Components**: Each part of the interface is divided into reusable and maintainable components.
+- **TypeScript**: TypeScript is used to ensure strict typing and reduce errors during development.
+- **Dynamic Routing**: Navigation between the different pages of the application using React Router.
+- **Intuitive Interface**: A design focused on user experience and ease of use.
+- **Notification System**: In-app and email notifications to alert users of important updates.
+- **Theme Support**: Users can switch between light and dark mode.
 
-## Scripts Disponibles
+## Available Scripts
 
-- `npm run dev` / `yarn dev`: Inicia el servidor de desarrollo.
-- `npm run build` / `yarn build`: Genera la versión de producción.
-- `npm run lint` / `yarn lint`: Ejecuta el linter para revisar errores en el código.
-- `npm test` / `yarn test`: Corre las pruebas unitarias (a implementar).
+- `npm run dev` / `yarn dev`: Starts the development server.
+- `npm run build` / `yarn build`: Builds the production version.
+- `npm run lint` / `yarn lint`: Runs the linter to check for code errors.
+- `npm test` / `yarn test`: Runs unit tests (to be implemented).
 
-## Documentación y API
+## Documentation and API
 
-El frontend consume las APIs del backend desarrollado en SpringBoot, siguiendo un patrón REST. La documentación de las APIs puede encontrarse en el servicio de Swagger proporcionado por el backend.
+The frontend consumes APIs from the backend developed in SpringBoot, following a REST pattern. API documentation is available via the Swagger service provided by the backend.
 
-## Pruebas
+## Testing
 
-Se implementarán pruebas unitarias e integración para validar el comportamiento de los componentes y la interacción con los servicios.
+Unit and integration tests will be implemented to validate the behavior of components and the interaction with services.
 
-- **Unitarias**: Validar el correcto funcionamiento de los componentes individuales y las funciones auxiliares.
-- **Integración**: Validar la interacción entre componentes, páginas y los servicios REST del backend.
+- **Unit Tests**: Validate the correct functionality of individual components and helper functions.
+- **Integration Tests**: Validate the interaction between components, pages, and REST services from the backend.
 
+Testing will be set up using **Jest** and **React Testing Library**.
 
-## Contribuciones
+## Contributing
 
-Si deseas contribuir al proyecto, puedes abrir un issue o realizar un pull request.
+If you wish to contribute to the project, feel free to open an issue or submit a pull request.
 
-1. Haz un fork del repositorio.
-2. Crea una rama para tu feature (`git checkout -b feature/nueva-feature`).
-3. Realiza tus cambios y haz commit (`git commit -am 'Añadir nueva feature'`).
-4. Sube los cambios a tu repositorio (`git push origin feature/nueva-feature`).
-5. Crea un nuevo Pull Request.
+1. Fork the repository.
+2. Create a new branch for your feature (`git checkout -b feature/new-feature`).
+3. Make your changes and commit them (`git commit -am 'Add new feature'`).
+4. Push the changes to your repository (`git push origin feature/new-feature`).
+5. Create a new Pull Request.
 
-## Licencia
+## License
 
-Este proyecto está bajo la licencia MIT.
-```
+This project is licensed under the MIT License.
 
-Este archivo README proporciona una descripción general del proyecto, su estructura, y cómo configurarlo. Además, incluye instrucciones para contribuir y documentar las pruebas. ¿Te gustaría añadir algún detalle adicional?
+This README provides a comprehensive overview of the project, including its modular organization using vertical slices, installation steps, and details on how to contribute. Let me know if you'd like to tweak anything!
