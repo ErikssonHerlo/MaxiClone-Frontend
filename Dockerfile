@@ -2,9 +2,9 @@
 FROM node:18 AS build
 WORKDIR /app
 COPY package.json ./
-RUN npm install
+RUN yarn install
 COPY . .
-RUN npm run build
+RUN yarn build
 
 # Etapa de producción con Nginx
 FROM nginx:alpine
