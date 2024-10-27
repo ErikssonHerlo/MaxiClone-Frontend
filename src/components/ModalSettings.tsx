@@ -3,9 +3,9 @@ import dataJSON from '../../public/data.json';
 
 
 
-export const Modal = ({ closeModal, onSubmit, defaultValue }) => {
+export const Modal = ({ closeModatadal, onSubmit, defaultValue }) => {
   const fields=Object.keys(Object.values(dataJSON)[0]).filter((item:any)=>!(item.startsWith("delta_")));
-  
+
   const [formState, setFormState] = useState(
     defaultValue || {
       id: "",
@@ -32,7 +32,7 @@ export const Modal = ({ closeModal, onSubmit, defaultValue }) => {
         }
         else{
         if (key=='id'){
-          if (!(Object.keys(dataJSON).includes(value)||value=="ALL")){
+          if (!(Object.keys(dataJSON).includes(value as string) || value == "ALL")){
             errorFields.push("INVALID_ID_"+value)
           }
         }
@@ -52,7 +52,7 @@ export const Modal = ({ closeModal, onSubmit, defaultValue }) => {
     console.log(e.target.value);
     console.log(e.target.name=="para"&&e.target.value=='rating'&&formState.criterion>1&&formState.criterion<4);
     if (e.target.name=="para"&&e.target.value=='rating'&&formState.criterion>1&&formState.criterion<4) {setFormState({ ...formState, ["criterion"]: 0 });}
-    
+
     console.log(formState.criterion);
     setFormState({ ...formState, [e.target.name]: e.target.value });
   };
@@ -64,22 +64,22 @@ export const Modal = ({ closeModal, onSubmit, defaultValue }) => {
 
     onSubmit(formState);
 
-    closeModal();
+    //closeModal();
   };
 
   return (
     <div
       className="modal-container fixed z-50 flex top-25 bottom-5 "
       onClick={(e) => {
-        if (e.target.className === "modal-container") closeModal();
+        //if ((e.target as HTMLElement).className === "modal-container") //closeModal();
       }}
     >
-    
+
       <div className="modal rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark overflow-auto">
       <div className="border-b border-stroke py-4 px-7 dark:border-strokedark">
         <div className="w-full flex justify-end">
       <strong className="text-xl align-center cursor-pointer "
-      onClick={closeModal}
+     // onClick={closeModal}
       >&times;</strong>
       </div>
         <form>
@@ -90,25 +90,25 @@ export const Modal = ({ closeModal, onSubmit, defaultValue }) => {
             <input className="w-full rounded border border-stroke bg-gray py-3 pl-3 pr-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
                           name="id" onChange={handleChange} value={formState.id} />
           </div>
-          
+
           <div className="form-group ">
             <label className="mb-3 block text-sm font-medium text-black dark:text-white" htmlFor="para">Parameter</label>
             <div className="relative z-20 w-full rounded border border-stroke p-1.5 pr-8 font-medium outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input">
                   <div className="flex flex-wrap items-center"></div>
                   <span className="m-1.5 flex items-center justify-center rounded border-[.5px] border-stroke bg-gray py-1.5 px-2.5 text-sm font-medium dark:border-strokedark dark:bg-white/30">
                       {formState.para}
-                      
-                            
+
+
                     </span>
                     <select
                     className="absolute top-0 left-0 z-20 h-full w-full bg-transparent opacity-0"
-                        
+
                     name="para"
                     onChange={handleChange}
                     value={formState.para}
                     >
                       {fields.map((item:any,idx:number)=>(<option key={idx} value={item}>{item}</option>))}
-                    
+
                     </select>
                     <span className="absolute top-1/2 right-4 z-10 -translate-y-1/2">
                             <svg
@@ -129,11 +129,11 @@ export const Modal = ({ closeModal, onSubmit, defaultValue }) => {
                             </svg>
                         </span>
                     </div>
-            
+
             </div>
-            
-          
-          
+
+
+
           <div className="form-group">
           <label className="mb-3 block text-sm font-medium text-black dark:text-white" htmlFor="criterion">Criterion</label>
             <div className="relative z-20 w-full rounded border border-stroke p-1.5 pr-8 font-medium outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input">
@@ -151,7 +151,7 @@ export const Modal = ({ closeModal, onSubmit, defaultValue }) => {
               <option value="1">goes up by</option>
               {!(formState.para=='rating')&&<option value="2">is smaller than</option>}
               {!(formState.para=='rating')&&<option value="3">is greater than</option>}
-              
+
               <option value="4">is equal to</option>
             </select>
             <span className="absolute top-1/2 right-4 z-10 -translate-y-1/2">
@@ -179,15 +179,15 @@ export const Modal = ({ closeModal, onSubmit, defaultValue }) => {
             <input className="w-full rounded border border-stroke bg-gray py-3 pl-3 pr-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
                            name="value" onChange={handleChange} value={formState.value} />
           </div>
-          
+
           <div className="form-group">
             <label className="mb-3 block text-sm font-medium text-black dark:text-white" htmlFor="type">Alert Type</label>
             <div className="relative z-20 w-full rounded border border-stroke p-1.5 pr-8 font-medium outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input">
                   <div className="flex flex-wrap items-center"></div>
                   <span className={`${formState.type==0?"bg-[#04b20c]":formState.type==1?"bg-[#eab90f]":"bg-[#e13f32]"} m-1.5 flex items-center justify-center rounded border-[.5px] border-stroke py-1.5 px-2.5 text-white font-medium dark:border-strokedark`}>
                       {formState.type==0?"Info":formState.type==1?"Warning":"Alert"}
-                      
-                            
+
+
                     </span>
             <select
             className="absolute top-0 left-0 z-20 h-full w-full bg-transparent opacity-0"
@@ -222,8 +222,8 @@ export const Modal = ({ closeModal, onSubmit, defaultValue }) => {
           </div>
           {errors.filter((item:string)=>(item.startsWith("INVALID_ID"))).length>0 && <><br/><div className="error">{errors.filter((item:string)=>(item.startsWith("INVALID_ID")))[0].replace("INVALID_ID_","")} is not a valid bond</div></>}
           {errors.filter((item:string)=>!(item.startsWith("INVALID_ID"))).length>0 && (<div className="error">Please input {errors.filter((item:string)=>!(item.startsWith("INVALID_ID"))).join(", ")}</div>)}
-          
-          
+
+
           <br></br>
           <button className="btn flex justify-center rounded bg-primary py-2 px-6 font-medium text-gray hover:shadow-1"
                       type="submit" onClick={handleSubmit}>
@@ -233,6 +233,6 @@ export const Modal = ({ closeModal, onSubmit, defaultValue }) => {
       </div>
       </div>
     </div>
-    
+
   );
 };

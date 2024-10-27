@@ -2,8 +2,8 @@ import toast from 'react-hot-toast';
 import dataJSON from '../../public/data.json';
 
 
-const createToast=(title: string, msg: string, type: number)=>{toast.custom((t) => (
-  
+const createToast=(title: string, msg: string, type: string)=>{toast.custom((t) => (
+
     <div
       className={`${
         t.visible ? 'animate-enter' : 'animate-leave'
@@ -12,7 +12,7 @@ const createToast=(title: string, msg: string, type: number)=>{toast.custom((t) 
     >
       <div className="flex-1 w-0 p-4 ">
         <div className="flex items-start">
-          
+
           <div className="ml-3 flex-1">
             <p className="text-sm font-medium text-white">
               {title}
@@ -24,7 +24,7 @@ const createToast=(title: string, msg: string, type: number)=>{toast.custom((t) 
         </div>
       </div>
       <div className="flex">
-        
+
           <button
           onClick={() => toast.dismiss(t.id)}
           type="button"
@@ -47,7 +47,7 @@ const createToast=(title: string, msg: string, type: number)=>{toast.custom((t) 
             </svg>
           </span>
         </button>
-          
+
       </div>
     </div>
   ))};
@@ -84,7 +84,7 @@ if (alertSettings){
           const msg=`${alertSetting.para} of ${id} ${alertSetting.criterion==0?"goes down by":alertSetting.criterion==1?"goes up by":alertSetting.criterion==2?"is smaller than":alertSetting.criterion==3?"is greater than":"is equal to"} ${realValue}`;
           createToast(id,msg,alertSetting.type)
         }
-    
+
 
       }
 
@@ -92,13 +92,13 @@ if (alertSettings){
     }
     else{
       const id=alertSetting.id;
-      
+
       const condition=alertSetting.criterion=='0'?value>=-1*dataJSON[id][para]:
         alertSetting.criterion=='1'||alertSetting.criterion=='3'?value>=dataJSON[id][para]:
         alertSetting.criterion=='2'?value<=dataJSON[id][para]:
         value==dataJSON[id][para];
         const realValue=alertSetting.criterion=='0'?dataJSON[id][para]*-1:dataJSON[id][para];
-        
+
         if (condition){
           const msg=`${alertSetting.para} of ${id} ${alertSetting.criterion==0?"goes down by":alertSetting.criterion==1?"goes up by":alertSetting.criterion==2?"is smaller than":alertSetting.criterion==3?"is greater than":"is equal to"} ${realValue}`;
           createToast(id,msg,alertSetting.type)
@@ -109,4 +109,3 @@ if (alertSettings){
 }
 
 export default fireToast;
-  

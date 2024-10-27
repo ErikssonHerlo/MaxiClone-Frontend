@@ -1,6 +1,5 @@
 import React, { useState, ReactNode } from 'react';
 import Header from '../components/Header/index';
-import HeaderLogin from '../components/Header/HeaderLogin';
 import Sidebar from '../components/Sidebar/index';
 
 const LoginLayout: React.FC<{ children: ReactNode }> = ({ children }) => {

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { ReactNode, useEffect, useState } from 'react';
 import { NavLink, useLocation, useNavigate, useParams } from 'react-router-dom';
 import Breadcrumb from '../../components/Breadcrumbs/Breadcrumb';
 import DefaultLayout from '../../layout/DefaultLayout';
@@ -9,7 +9,7 @@ const ReservationCreation = () => {
   const { id } = useParams();
   const [rol, setRol] = useState('user');
   const [username, setUsername] = useState('');
-  const [validationResult, setValidationResult] = useState();
+  const [validationResult, setValidationResult] = useState<any>();
   const [isbn_code, setISBNCode] = useState('');
   const [reservation_date, setReservationDate] = useState('');
 
@@ -112,12 +112,12 @@ const ReservationCreation = () => {
       position: toast.POSITION.BOTTOM_RIGHT,
     });
   };
-  
+
   useEffect(() => {
     setRol(getUserInfo().role);
   }, []);
 
-  
+
 
   return (
     <DefaultLayout>

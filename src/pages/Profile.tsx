@@ -27,13 +27,13 @@ const Profile = () => {
     }
   };
 
-  function formatUserInfo(userInfo) {
+  function formatUserInfo(userInfo: { [key: string]: any }) {
     return Object.entries(userInfo).map(([key, value]) => (
       <div key={key}>
         <strong>{key}:</strong>{' '}
         {typeof value === 'object' && value !== null
-          ? formatUserInfo(value)
-          : value}
+          ? formatUserInfo(value as { [key: string]: any })
+          : String(value)}
       </div>
     ));
   }
