@@ -52,9 +52,13 @@ const SignIn: React.FC = () => {
           const userInfo = await userInfoResponse.json();
           sessionStorage.setItem('authToken', data.token);
           localStorage.setItem('UserInfo', JSON.stringify(userInfo.data));
-          if (userInfo.data.role === 'librarian') {
+          if (userInfo.data.role === 'ADMINISTRATOR') {
             navigate('/librarian-dashboard');
-          }else if(userInfo.data.role === 'student'){
+          }else if(userInfo.data.role === 'WAREHOUSE'){
+            navigate('/student-dashboard');
+          }else if(userInfo.data.role === 'SUPERVISOR'){
+            navigate('/student-dashboard');
+          }else if(userInfo.data.role === 'STORE'){
             navigate('/student-dashboard');
           }
 

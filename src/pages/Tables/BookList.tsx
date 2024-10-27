@@ -8,7 +8,7 @@ const Books = () => {
       <Breadcrumb pageName="Libreria" />
       <div className="flex flex-col gap-10">
         <BookTable
-          endpoint="http://35.227.62.223:8082/api/v1/catalog/products"
+          endpoint="http://35.237.124.228/api/v1/catalog/products"
           module="book-creation"
           urlKey="isbn_code"
         />
