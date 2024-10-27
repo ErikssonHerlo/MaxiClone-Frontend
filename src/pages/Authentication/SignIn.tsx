@@ -9,7 +9,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 const SignIn: React.FC = () => {
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
 
@@ -18,13 +18,13 @@ const SignIn: React.FC = () => {
 
     try {
       const response = await fetch(
-        'http://18.226.172.184:8080/api/v1/auth/login',
+        'http://35.237.124.228/api/v1/auth/login',
         {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ username, password }),
+          body: JSON.stringify({ email, password }),
         },
       );
 
@@ -38,7 +38,7 @@ const SignIn: React.FC = () => {
 
         // Realizar la segunda petición con el token
         const userInfoResponse = await fetch(
-          'http://18.226.172.184:8080/api/v1/user/info',
+          'http://35.237.124.228/api/v1/users/info',
           {
             method: 'GET',
             headers: {
@@ -116,10 +116,10 @@ const SignIn: React.FC = () => {
                   <div className="relative">
                     <input
                       type="text"
-                      placeholder="Ingresa tu usuario"
+                      placeholder="Ingresa tu email"
                       className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-                      value={username}
-                      onChange={(e) => setUsername(e.target.value)}
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
                     />
                     <span className="absolute right-4 top-4">
                       <svg
