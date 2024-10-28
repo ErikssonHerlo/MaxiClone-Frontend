@@ -5,12 +5,12 @@ import DefaultLayout from '../../layout/DefaultLayout';
 const Books = () => {
   return (
     <DefaultLayout>
-      <Breadcrumb pageName="Libreria" />
+      <Breadcrumb pageName="Catalogo" />
       <div className="flex flex-col gap-10">
         <BookTable
           endpoint="http://35.237.124.228/api/v1/catalog/products"
           module="book-creation"
-          urlKey="isbn_code"
+          urlKey="sku"
         />
       </div>
     </DefaultLayout>

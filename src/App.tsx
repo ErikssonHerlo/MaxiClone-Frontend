@@ -26,6 +26,10 @@ import CarrerList from './pages/Tables/CarreerList';
 import BookList from './pages/Tables/BookList';
 import UserList from './pages/Tables/UserList';
 import ReservationList from './pages/Tables/ReservationList';
+import StoresList from './pages/Tables/StoreList';
+import StoreCreation from './pages/Form/StoreCreation';
+import OrderList from './pages/Tables/ReservationList';
+import ShipmentsList from './pages/Tables/ShipmentsList';
 
 function App() {
   const [loading, setLoading] = useState<boolean>(true);
@@ -54,7 +58,7 @@ function App() {
           }
         />
         <Route
-          path="/librarian-dashboard"
+          path="/administrator-dashboard"
           element={
             <>
               <PageTitle title="Dashboard" />
@@ -180,6 +184,15 @@ function App() {
           }
         />
         <Route
+          path="/forms/store-creation/:id?"
+          element={
+            <>
+              <PageTitle title="Creacion de tienda" />
+              <StoreCreation />
+            </>
+          }
+        />
+        <Route
           path="/forms/loan-creation"
           element={
             <>
@@ -232,7 +245,7 @@ function App() {
           path="/tables/books"
           element={
             <>
-              <PageTitle title="Libreria" />
+              <PageTitle title="Catalogo" />
               <BookList />
             </>
           }
@@ -248,12 +261,40 @@ function App() {
           }
         />
 
-      <Route
-          path="/tables/reservations"
+    <Route
+          path="/tables/orders"
           element={
             <>
-              <PageTitle title="Lista de Reservaciones" />
-              <ReservationList />
+              <PageTitle title="Lista de Ordenes" />
+              <OrderList />
+            </>
+          }
+        />
+
+<Route
+          path="/tables/orders"
+          element={
+            <>
+              <PageTitle title="Lista de Ordenes" />
+              <OrderList />
+            </>
+          }
+        />
+    <Route
+          path="/tables/shipments"
+          element={
+            <>
+              <PageTitle title="Lista de Envios" />
+              <ShipmentsList />
+            </>
+          }
+        />
+      <Route
+          path="/tables/stores"
+          element={
+            <>
+              <PageTitle title="Lista de Tiendas" />
+              <StoresList />
             </>
           }
         />

@@ -3,17 +3,18 @@ import { useNavigate, useParams } from 'react-router-dom';
 import Breadcrumb from '../../components/Breadcrumbs/Breadcrumb';
 import DefaultLayout from '../../layout/DefaultLayout';
 import { ToastContainer, toast } from 'react-toastify';
+import { sleep } from '../../common/utils';
 
-const BookCreation = () => {
+const StoreCreation = () => {
+
     const { id } = useParams();
     const navigate = useNavigate();
-    const [sku, setSku] = useState('');
-    const [cost, setCost] = useState('');
-    const [price, setPrice] = useState('');
     const [name, setName] = useState('');
-    const [description, setDescription] = useState('');
-    const [totalStock, setTotalStock] = useState('');
-    const [coverImageUrl, setImage] = useState(null);
+    const [address, setAddress] = useState('');
+    const [storeType, setStoreType] = useState('NORMAL');
+    const [phone, setPhone] = useState('');
+    const [code, setCode] = useState('');
+    const [urlImage, setImage] = useState(null);
     const [rol, setRol] = useState('user');
 
     const authToken = sessionStorage.getItem('authToken');
@@ -27,7 +28,7 @@ const BookCreation = () => {
             const fetchCareer = async () => {
                 try {
                     const response = await fetch(
-                        `http://35.237.124.228/api/v1/catalog/products/${id}`,
+                        `http://35.237.124.228/api/v1/stores/${id}`,
                         {
                             method: 'GET',
                             headers: {
@@ -42,13 +43,12 @@ const BookCreation = () => {
                     }
 
                     const result = await response.json();
-                    setSku(result.data.sku);
-                    setCost(result.data.cost);
-                    setPrice(result.data.price);
+                    setCode(result.data.code);
                     setName(result.data.name);
-                    setTotalStock(result.data.totalStock);
-                    setImage(result.data.coverImageUrl);
-                    setDescription(result.data.description);
+                    setImage(result.data.urlImage);
+                    setAddress(result.data.address);
+                    setStoreType(result.data.storeType);
+                    setPhone(result.data.phone);
 
                 } catch (error) { }
             };
@@ -61,14 +61,12 @@ const BookCreation = () => {
         e.preventDefault();
 
         const bookData = id
-            ? { sku, cost, price, name, totalStock: totalStock, coverImageUrl: coverImageUrl, description: description }
-            : { sku, cost, price, name, totalStock: totalStock, coverImageUrl: coverImageUrl,description: description };
+            ? { code, name, urlImage: urlImage, address, storeType, phone }
+            : { code, name, urlImage: urlImage, address, storeType, phone };
 
         try {
-
-            console.log(JSON.stringify(bookData));
             const response = await fetch(
-                `http://35.237.124.228/api/v1/catalog/products${id ? `/${id}` : ''}`,
+                `http://35.237.124.228/api/v1/stores${id ? `/${id}` : ''}`,
                 {
                     method: id ? 'PUT' : 'POST',
                     headers: {
@@ -87,12 +85,14 @@ const BookCreation = () => {
             const result = await response.json();
             console.log(result);
             showSuccessMessage(
-                id ? 'Libro actualizado exitosamente' : 'Libro creado exitosamente',
+                id ? 'Tienda actualizada exitosamente' : 'Tienda creado exitosamente',
             );
+            await sleep(3000);
+            navigate('/tables/stores');
         } catch (error) {
             console.error('Error:', error);
             showErrorMessage(
-                'Error al registrar o actualizar el libro. Por favor, verifica los datos e intenta de nuevo.',
+                'Error al registrar o actualizar la Tienda. Por favor, verifica los datos e intenta de nuevo.',
             );
         }
     };
@@ -131,7 +131,7 @@ const BookCreation = () => {
 
     return (
         <DefaultLayout>
-            <Breadcrumb pageName={id ? 'Editar Producto' : 'Agregar Producto'} />
+            <Breadcrumb pageName={id ? 'Editar Tienda' : 'Agregar Tienda'} />
 
             <div className="flex justify-center">
                 <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark md:w-1/2">
@@ -144,28 +144,13 @@ const BookCreation = () => {
                         <div className="p-6.5">
                             <div className="mb-4.5">
                                 <label className="mb-2.5 block text-black dark:text-white">
-                                    Codigo SKU <span className="text-meta-1">*</span>
+                                    Codigo <span className="text-meta-1">*</span>
                                 </label>
                                 <input
                                     type="text"
-                                    value={sku}
-                                    onChange={(e) => setSku(e.target.value)}
-                                    placeholder="Ingresa el codigo"
-                                    className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-                                    disabled={id ? true : false}
-                                    required
-                                />
-                            </div>
-
-                            <div className="mb-4.5">
-                                <label className="mb-2.5 block text-black dark:text-white">
-                                    Costo <span className="text-meta-1">*</span>
-                                </label>
-                                <input
-                                    type="number"
-                                    value={cost}
-                                    onChange={(e) => setCost(e.target.value)}
-                                    placeholder="Ingresa el título"
+                                    value={code}
+                                    onChange={(e) => setCode(e.target.value)}
+                                    placeholder="Ingresa el Codigo"
                                     required
                                     className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                                 />
@@ -173,13 +158,13 @@ const BookCreation = () => {
 
                             <div className="mb-4.5">
                                 <label className="mb-2.5 block text-black dark:text-white">
-                                    Precio <span className="text-meta-1">*</span>
+                                    Direccion <span className="text-meta-1">*</span>
                                 </label>
                                 <input
-                                    type="number"
-                                    value={price}
-                                    onChange={(e) => setPrice(e.target.value)}
-                                    placeholder="Ingresa el precio"
+                                    type="text"
+                                    value={address}
+                                    onChange={(e) => setAddress(e.target.value)}
+                                    placeholder="Ingresa la direccion"
                                     required
                                     className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                                 />
@@ -203,30 +188,35 @@ const BookCreation = () => {
 
                             <div className="mb-4.5">
                                 <label className="mb-2.5 block text-black dark:text-white">
-                                    Stock Total <span className="text-meta-1">*</span>
+                                    Telefono <span className="text-meta-1">*</span>
                                 </label>
                                 <input
                                     type="number"
-                                    value={totalStock}
-                                    onChange={(e) => setTotalStock(e.target.value)}
-                                    placeholder="Ingresa el stock total"
+                                    value={phone}
+                                    onChange={(e) => setPhone(e.target.value)}
+                                    min={status === 'not_available' ? 0 : 1}
+                                    max={status === 'not_available' ? 0 : undefined}
+                                    placeholder="Ingresa el telefono"
                                     required
                                     className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                                 />
                             </div>
 
-                            <div className="mb-6">
+                            <div className="mb-4.5">
                                 <label className="mb-2.5 block text-black dark:text-white">
-                                    Descripción
+                                    Tipo de Tienda <span className="text-meta-1">*</span>
                                 </label>
-                                <textarea
-                                    rows={6}
-                                    value={description}
-                                    onChange={(e) => setDescription(e.target.value)}
-                                    placeholder="Ingresa la descripción"
+                                <input
+                                    type="text"
+                                    value={storeType}
+                                    onChange={(e) => setStoreType(e.target.value)}
+                                    placeholder="Ingresa el tipo de tienda"
+                                    required
                                     className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-                                ></textarea>
+                                />
                             </div>
+
+
 
                             <div className="mb-4.5">
                                 <label className="mb-2.5 block text-black dark:text-white">
@@ -234,7 +224,7 @@ const BookCreation = () => {
                                 </label>
                                 <input
                                     type="text"
-                                    value={coverImageUrl}
+                                    value={urlImage}
                                     onChange={(e) => setImage(e.target.value)}
                                     placeholder="Ingresa la url de la imagen"
                                     className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
@@ -245,7 +235,7 @@ const BookCreation = () => {
                                 type="submit"
                                 className="flex w-full justify-center rounded bg-primary p-3 font-medium text-gray hover:bg-opacity-90"
                             >
-                                {id ? 'Editar Producto' : 'Agregar Producto'}
+                                {id ? 'Editar Tienda' : 'Agregar Tienda'}
                             </button>
                         </div>
                     </form>
@@ -256,4 +246,4 @@ const BookCreation = () => {
     );
 };
 
-export default BookCreation;
+export default StoreCreation;

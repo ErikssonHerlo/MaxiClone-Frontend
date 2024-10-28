@@ -33,7 +33,7 @@ interface TableCustomProps {
   urlKey: string;
 }
 
-const BookTable: React.FC<TableCustomProps> = ({
+const StoreTable: React.FC<TableCustomProps> = ({
   endpoint,
   module,
   urlKey,
@@ -138,10 +138,10 @@ const BookTable: React.FC<TableCustomProps> = ({
               <img
                 className="w-full h-72 object-cover rounded-t-md"
                 src={
-                  (book.coverImageUrl?.startsWith('http') ||
-                  book.coverImageUrl?.startsWith('https')) &&
-                  !book.coverImageUrl?.startsWith('https://example.com')
-                    ? book.coverImageUrl
+                  (book.urlImage?.startsWith('http') ||
+                  book.urlImage?.startsWith('https')) &&
+                  !book.urlImage?.startsWith('https://example.com')
+                    ? book.urlImage
                     : defaultImage
                 }
                 alt={book.title}
@@ -153,7 +153,7 @@ const BookTable: React.FC<TableCustomProps> = ({
                 </h1>
                 <div className='flex justify-between items-center'>
                   <h2 className="text-sm text-blue-500">{book.name}</h2>
-                  <h2 className={`text-sm ${book.totalStock > 0 ? 'text-green-500' : 'text-red-500'} px-4`}>{book.totalStock > 0 ? 'Unidades: '+book.totalStock : 'No Disponible'}</h2>
+                  <h2 className={`text-sm ${book.storeType === 'NORMAL' ? 'text-green-500' : 'text-red-500'} px-4`}>{book.storeType === 'NORMAL' ? 'Tipo: '+book.storeType : book.storeType}</h2>
                 </div>
                 <div className="flex flex-row justify-between items-center">
                   <div className="flex">
@@ -215,4 +215,4 @@ const BookTable: React.FC<TableCustomProps> = ({
   );
 };
 
-export default BookTable;
+export default StoreTable;

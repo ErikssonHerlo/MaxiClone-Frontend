@@ -46,13 +46,17 @@ const theme = {
 };
 
 const fetchData = async (endpoint: string, token: string) => {
-  const response = await fetch(endpoint + '/all', {
+  const response = await fetch(endpoint, {
     method: 'GET',
     headers: {
       Authorization: `Bearer ${token}`,
       'Content-Type': 'application/json',
     },
   });
+  if(response.status === 401){
+    window.sessionStorage.removeItem('authToken');
+    window.location.href = '/';
+  }
   return response.json();
 };
 
@@ -93,9 +97,9 @@ const TableCustom: React.FC<TableCustomProps> = ({
     const loadData = async () => {
       if (token) {
         const result = await fetchData(endpoint, token);
-        setData(result.data);
-        setFilteredData(result.data);
-        setTotalPages(Math.ceil(result.data.length / size));
+        setData(result.data.content ? result.data.content : result.data);
+        setFilteredData(result.data.content ? result.data.content : result.data);
+        setTotalPages(Math.ceil( result.data.content ? (result.data.content.length / size) : (result.data.length / size)));
       }
     };
 
