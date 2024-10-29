@@ -186,7 +186,7 @@ function App() {
           }
         />
          <Route
-          path="/auth/reset-password/:email?"
+          path="/auth/reset-password/:email?/:code?"
           element={
             <>
               <PageTitle title="Recover Password" />
