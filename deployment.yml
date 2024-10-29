@@ -19,13 +19,6 @@ spec:
         image: us-east1-docker.pkg.dev/maxi-clone/mc-repository-dev/frontend:latest
         ports:
         - containerPort: 80
-        resources:
-          requests:
-            memory: "256Mi"
-            cpu: "200m"
-          limits:
-            memory: "256Mi"
-            cpu: "220m"
 ---
 apiVersion: v1
 kind: Service
