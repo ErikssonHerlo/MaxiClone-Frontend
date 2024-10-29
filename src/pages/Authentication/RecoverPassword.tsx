@@ -13,18 +13,14 @@ const ResetPassword: React.FC = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const navigate = useNavigate();
-  const { email: emailParam } = useParams(); // Captura el email del path si está presente
-  const { email: codeParam } = useParams(); // Captura el code del path si está presente
+  // Captura email y code desde los parámetros de la URL
+  const { email: emailParam, code: codeParam } = useParams();
 
-  // Setea el email desde el path si existe
+  // Setea email y code desde los parámetros de la URL, si existen
   useEffect(() => {
-    if (emailParam) {
-      setEmail(emailParam);
-    }
-    if (codeParam) {
-        setCode(codeParam);
-      }
-  }, [emailParam,codeParam]);
+    if (emailParam) setEmail(emailParam);
+    if (codeParam) setCode(codeParam);
+  }, [emailParam, codeParam]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
