@@ -14,6 +14,10 @@ const fetchData = async (endpoint: string, token: string) => {
       'Content-Type': 'application/json',
     },
   });
+  if(response.status === 401){
+    window.sessionStorage.removeItem('authToken');
+    window.location.href = '/';
+    }
   return response.json();
 };
 

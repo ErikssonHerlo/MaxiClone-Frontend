@@ -42,12 +42,15 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
 
   useEffect(() => {
     const token = getSessionToken();
-    if (!token) {
-      navigate('/');
-    } else {
-      setRol(getUserInfo().role);
-    }
-  }, []);
+    const isAuthRoute = pathname.startsWith('/auth/');
+    if(!isAuthRoute){
+        if (!token) {
+        navigate('/');
+        } else {
+        setRol(getUserInfo().role);
+        }
+}
+  }, [pathname]);
 
   // close on click outside
   useEffect(() => {

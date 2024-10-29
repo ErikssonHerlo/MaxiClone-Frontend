@@ -12,7 +12,7 @@ const SignIn: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
-
+  localStorage.removeItem('Role');
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
@@ -192,9 +192,9 @@ const SignIn: React.FC = () => {
 
                 <div className="mt-6 text-center">
                   <p>
-                    No tienes cuenta?{' '}
-                    <Link to="/auth/signup" className="text-primary">
-                      Registrate
+                    No recuerdas tu contraseña?{' '}
+                    <Link to="../auth/generate-code" className="text-primary">
+                      Recuperar
                     </Link>
                   </p>
                 </div>

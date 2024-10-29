@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 
 import UserOne from '../../images/user/user-01.png';
 
@@ -7,7 +7,8 @@ const DropdownUser = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [username, setUsername] = useState('user');
   const [rol, setRol] = useState('user');
-
+  const location = useLocation();
+  const { pathname } = location;
   const trigger = useRef<any>(null);
   const dropdown = useRef<any>(null);
   const navigate = useNavigate();
@@ -36,13 +37,16 @@ const DropdownUser = () => {
 
   useEffect(() => {
     const token = getSessionToken();
-    if (!token) {
-      navigate('/');
-    } else {
-      setUsername(getUserInfo().full_name);
-      setRol(getUserInfo().role);
-    }
-  }, []);
+    const isAuthRoute = pathname.startsWith('/auth/');
+    console.log('isAuthRoute', isAuthRoute);
+    if(!isAuthRoute){
+        if (!token) {
+        navigate('/');
+        } else {
+        setRol(getUserInfo().role);
+        }
+}
+  }, [pathname]);
 
   // close on click outside
   useEffect(() => {

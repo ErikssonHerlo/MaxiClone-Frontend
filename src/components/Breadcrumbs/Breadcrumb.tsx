@@ -1,22 +1,25 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+
 interface BreadcrumbProps {
   pageName: string;
 }
+
 const Breadcrumb = ({ pageName }: BreadcrumbProps) => {
-  const [rol, setRol] = useState('user');
-  const [path, setPath] = useState('dashboard');
+  const [path, setPath] = useState('/');
 
-
-useEffect(() => {
+  useEffect(() => {
+    // Obtener el rol una sola vez cuando el componente se monta
     const role = localStorage.getItem('Role');
-    console.log(role)
-      setRol(role);
-      setPath('../'+rol.toLowerCase()+'-dashboard');
-
-}, [rol]);
-
-
+    if (role) {
+        console.log(role);
+        setPath(`../${role.toLowerCase()}-dashboard`);
+    }else{
+        console.log('No role');
+        setPath('/');
+        console.log(path);
+    }
+  }, []); // Sin dependencias para que solo se ejecute una vez
 
   return (
     <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">

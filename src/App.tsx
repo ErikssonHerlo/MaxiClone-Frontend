@@ -30,6 +30,8 @@ import StoresList from './pages/Tables/StoreList';
 import StoreCreation from './pages/Form/StoreCreation';
 import OrderList from './pages/Tables/ReservationList';
 import ShipmentsList from './pages/Tables/ShipmentsList';
+import GeneratePasswordCode from './pages/Authentication/GeneratePasswordCode';
+import ResetPassword from './pages/Authentication/RecoverPassword';
 
 function App() {
   const [loading, setLoading] = useState<boolean>(true);
@@ -171,6 +173,24 @@ function App() {
             <>
               <PageTitle title="Inicio de sesion" />
               <SignUp />
+            </>
+          }
+        />
+         <Route
+          path="/auth/generate-code"
+          element={
+            <>
+              <PageTitle title="Generar Codigo" />
+              <GeneratePasswordCode />
+            </>
+          }
+        />
+         <Route
+          path="/auth/reset-password/:email?"
+          element={
+            <>
+              <PageTitle title="Recover Password" />
+              <ResetPassword />
             </>
           }
         />

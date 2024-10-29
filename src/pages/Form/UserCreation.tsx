@@ -10,7 +10,7 @@ const UserCreation = () => {
     const [email, setUsername] = useState('');
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
-    const [storeId, setStoreId] = useState<string | string[]>('');
+    const [storeId, setStoreId] = useState<number[]>([]);
     const [password, setPassword] = useState('');
     const [careerOptions, setCareerOptions] = useState([]);
     const [role, setRoleCode] = useState('');
@@ -228,8 +228,8 @@ const UserCreation = () => {
       Tienda
     </label>
     <select
-      value={storeId}
-      onChange={(e) => setStoreId(e.target.value)}
+      value={storeId[0] || ""}
+      onChange={(e) => setStoreId([parseInt(e.target.value)])}
       className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
     >
       <option value="">Selecciona una tienda</option>
@@ -249,9 +249,9 @@ const UserCreation = () => {
     </label>
     <select
       multiple
-      value={storeId}
+      value={storeId.map(String)}
       onChange={(e) =>
-        setStoreId(Array.from(e.target.selectedOptions, option => option.value))
+        setStoreId(Array.from(e.target.selectedOptions, option => parseInt(option.value)))
       }
       className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
     >
