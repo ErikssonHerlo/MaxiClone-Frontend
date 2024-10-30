@@ -32,6 +32,8 @@ import OrderList from './pages/Tables/ReservationList';
 import ShipmentsList from './pages/Tables/ShipmentsList';
 import GeneratePasswordCode from './pages/Authentication/GeneratePasswordCode';
 import ResetPassword from './pages/Authentication/RecoverPassword';
+import CatalogStore from './pages/Tables/CatalogStoreLit';
+import OrderCreation from './pages/Form/OrderCreation';
 
 function App() {
   const [loading, setLoading] = useState<boolean>(true);
@@ -69,7 +71,7 @@ function App() {
           }
         />
         <Route
-          path="/student-dashboard"
+          path="/store-dashboard"
           element={
             <>
               <PageTitle title="Dashboard" />
@@ -241,6 +243,16 @@ function App() {
           }
         />
 
+<Route
+          path="/forms/create-order/:id?"
+          element={
+            <>
+              <PageTitle title="Creacion de ordenes" />
+              <OrderCreation />
+            </>
+          }
+        />
+
         <Route
           path="/forms/carreer-creation/:id?"
           element={
@@ -265,8 +277,18 @@ function App() {
           path="/tables/books"
           element={
             <>
-              <PageTitle title="Catalogo" />
+              <PageTitle title="Catalogo General" />
               <BookList />
+            </>
+          }
+        />
+
+<Route
+          path="/tables/products-store"
+          element={
+            <>
+              <PageTitle title="Catalogo De Tienda" />
+              <CatalogStore />
             </>
           }
         />

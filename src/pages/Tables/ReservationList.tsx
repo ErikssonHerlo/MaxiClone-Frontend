@@ -11,13 +11,13 @@ const OrderList = () => {
     { label: 'Status', renderCell: (item) => item.orderStatus },
     { label: 'Rejection Reason', renderCell: (item) => item.rejectionReason },
   ];
-
+  const storeId = localStorage.getItem('StoreId');
   return (
     <DefaultLayout>
       <Breadcrumb pageName="Listado de Ordenes" />
       <div className="flex flex-col gap-10">
         <TableCustom
-          endpoint="http://35.237.124.228/api/v1/orders"
+          endpoint={storeId ? `http://35.237.124.228/api/v1/orders?storeId=${storeId}` : `http://35.237.124.228/api/v1/orders`}
           columns={columns}
           module="reservation-creation"
           urlKey="id"

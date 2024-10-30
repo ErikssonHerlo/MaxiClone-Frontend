@@ -60,6 +60,7 @@ const SignIn: React.FC = () => {
           }else if(userInfo.data.role === 'SUPERVISOR'){
             navigate('/supervisor-dashboard');
           }else if(userInfo.data.role === 'STORE'){
+            localStorage.setItem('StoreId', userInfo.data.storeId[0]);
             navigate('/store-dashboard');
           }
 

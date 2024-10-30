@@ -43,6 +43,7 @@ const BookTable: React.FC<TableCustomProps> = ({
   urlKey,
 }) => {
   const [data, setData] = useState<DataItem[]>([]);
+  const [rol, setRol] = useState('user');
   const [filteredData, setFilteredData] = useState<DataItem[]>([]);
   const [page, setPage] = useState(0);
   const [size] = useState(10);
@@ -67,7 +68,19 @@ const BookTable: React.FC<TableCustomProps> = ({
     loadData();
   }, [endpoint, token, size]);
 
+  const getUserInfo = () => {
+    const userInfo = localStorage.getItem('UserInfo');
+
+    if (userInfo !== null) {
+      const userInfoObj = JSON.parse(userInfo);
+      return userInfoObj;
+    } else {
+      return null;
+    }
+  };
+
   useEffect(() => {
+    setRol(getUserInfo().role);
     const filtered = data.filter((item) =>
       Object.values(item).some(
         (value) =>
@@ -139,18 +152,18 @@ const BookTable: React.FC<TableCustomProps> = ({
               className="bg-white dark:bg-[#24303F] w-46 rounded-md"
             >
 
-              <img
-                className="w-full h-72 object-cover rounded-t-md"
-                src={
-                  (book.coverImageUrl?.startsWith('http') ||
-                  book.coverImageUrl?.startsWith('https')) &&
-                  !book.coverImageUrl?.startsWith('https://example.com')
-                    ? book.coverImageUrl
-                    : defaultImage
-                }
-                alt={book.title}
-                onClick={() => handleEdit(book)}
-              />
+<img
+  className="w-full h-72 object-cover rounded-t-md"
+  src={
+    (book.coverImageUrl?.startsWith('http') ||
+      book.coverImageUrl?.startsWith('https')) &&
+    !book.coverImageUrl?.startsWith('https://example.com')
+      ? book.coverImageUrl
+      : defaultImage
+  }
+  alt={book.title}
+  onClick={rol === 'ADMINISTRATOR' ? () => handleEdit(book) : undefined}
+/>
               <div className="pl-2 py-2">
                 <h1 className="text-[#1D2A39] dark:text-white font-bold">
                   {book.title}
@@ -160,27 +173,30 @@ const BookTable: React.FC<TableCustomProps> = ({
                   <h2 className={`text-sm ${book.totalStock > 0 ? 'text-green-500' : 'text-red-500'} px-4`}>{book.totalStock > 0 ? 'Unidades: '+book.totalStock : 'No Disponible'}</h2>
                 </div>
                 <div className="flex flex-row justify-between items-center">
-                  <div className="flex">
-                    <FaEye
-                      style={{ cursor: 'pointer', marginRight: '10px' }}
-                      onClick={() => handleEdit(book)}
-                    />
-                    <FaEdit
-                      style={{ cursor: 'pointer', marginRight: '10px' }}
-                      onClick={() => handleEdit(book)}
-                    />
-                    <FaTrash
-                      style={{ cursor: 'pointer' }}
-                      onClick={() => handleDelete(book[urlKey])}
-                    />
-                  </div>
+                    {rol === 'ADMINISTRATOR' && (
+  <div className="flex">
+  <FaEye
+    style={{ cursor: 'pointer', marginRight: '10px' }}
+    onClick={() => handleEdit(book)}
+  />
+  <FaEdit
+    style={{ cursor: 'pointer', marginRight: '10px' }}
+    onClick={() => handleEdit(book)}
+  />
+  <FaTrash
+    style={{ cursor: 'pointer' }}
+    onClick={() => handleDelete(book[urlKey])}
+  />
+</div>
+                        )}
+
                   <div className="flex px-4 py-2">
                     {book.status !== 'available' && (
                       <button
                         className="bg-[#3C50E0] text-white px-2 py-1 rounded-md text-sm"
                         onClick={() => handleResevation(book)}
                       >
-                        Reservar
+                        Ordenar
                       </button>
                     )}
                     {book.status === 'available' && (
