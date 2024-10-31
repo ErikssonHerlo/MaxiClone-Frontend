@@ -34,6 +34,7 @@ import GeneratePasswordCode from './pages/Authentication/GeneratePasswordCode';
 import ResetPassword from './pages/Authentication/RecoverPassword';
 import CatalogStore from './pages/Tables/CatalogStoreLit';
 import OrderCreation from './pages/Form/OrderCreation';
+import OrderView from './pages/Form/OrderView';
 
 function App() {
   const [loading, setLoading] = useState<boolean>(true);
@@ -258,6 +259,16 @@ function App() {
             <>
               <PageTitle title="Creacion de ordenes" />
               <OrderCreation />
+            </>
+          }
+        />
+
+<Route
+          path="/forms/create-order/:id?/view"
+          element={
+            <>
+              <PageTitle title="Creacion de ordenes" />
+              <OrderView />
             </>
           }
         />

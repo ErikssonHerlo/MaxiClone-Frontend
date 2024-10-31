@@ -12,15 +12,21 @@ const OrderList = () => {
     { label: 'Rejection Reason', renderCell: (item) => item.rejectionReason },
   ];
   const storeId = localStorage.getItem('StoreId');
+  const rol = localStorage.getItem('Role');
   return (
     <DefaultLayout>
       <Breadcrumb pageName="Listado de Ordenes" />
       <div className="flex flex-col gap-10">
         <TableCustom
-          endpoint={storeId ? `http://35.237.124.228/api/v1/orders?storeId=${storeId}` : `http://35.237.124.228/api/v1/orders`}
+          endpoint={
+            storeId
+              ? `http://35.237.124.228/api/v1/orders?storeId=${storeId}`
+              : `http://35.237.124.228/api/v1/orders`
+          }
           columns={columns}
           module="create-order"
           urlKey="id"
+          filters={rol === 'SUPERVISOR'?"status=PENDING":null}
         />
       </div>
     </DefaultLayout>

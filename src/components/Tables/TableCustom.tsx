@@ -45,12 +45,34 @@ const theme = {
   `,
 };
 
-const fetchData = async (endpoint: string, token: string, searchTerm?: string) => {
+const fetchData = async (
+  endpoint: string,
+  token: string,
+  searchTerm?: string,
+  filters?: string
+) => {
   let url = endpoint;
-  if (searchTerm && searchTerm.trim() !== '') {
-    const separator = endpoint.includes('?') ? '&' : '?';
-    url = `${endpoint}${separator}filter=${encodeURIComponent(searchTerm)}`;
+  const urlParams = [];
+
+  if (filters && filters.trim() !== '') {
+    const filtersString = filters.trim();
+    if (filtersString.startsWith('&') || filtersString.startsWith('?')) {
+      // Eliminar el '&' o '?' inicial
+      urlParams.push(filtersString.substring(1));
+    } else {
+      urlParams.push(filtersString);
+    }
   }
+
+  if (searchTerm && searchTerm.trim() !== '') {
+    urlParams.push(`filter=${encodeURIComponent(searchTerm)}`);
+  }
+
+  if (urlParams.length > 0) {
+    const separator = endpoint.includes('?') ? '&' : '?';
+    url = `${endpoint}${separator}${urlParams.join('&')}`;
+  }
+
   const response = await fetch(url, {
     method: 'GET',
     headers: {
@@ -80,13 +102,15 @@ interface TableCustomProps {
   columns: Column[];
   module: string;
   urlKey: string;
+  filters?: string;
 }
 
 const TableCustom: React.FC<TableCustomProps> = ({
   endpoint,
   columns,
   module,
-  urlKey
+  urlKey,
+  filters,
 }) => {
   const [data, setData] = useState<DataItem[]>([]);
   const [page, setPage] = useState(0);
@@ -94,7 +118,7 @@ const TableCustom: React.FC<TableCustomProps> = ({
   const [totalPages, setTotalPages] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
   const navigate = useNavigate();
-
+  const rol = localStorage.getItem('Role');
   const token = window.sessionStorage.getItem('authToken');
 
   const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -103,7 +127,7 @@ const TableCustom: React.FC<TableCustomProps> = ({
   useEffect(() => {
     const loadData = async () => {
       if (token) {
-        const result = await fetchData(endpoint, token);
+        const result = await fetchData(endpoint, token, undefined, filters);
         const content = result.data.content ? result.data.content : result.data;
         setData(content);
         setTotalPages(Math.ceil(content.length / size));
@@ -111,7 +135,7 @@ const TableCustom: React.FC<TableCustomProps> = ({
     };
 
     loadData();
-  }, [endpoint, token, size]);
+  }, [endpoint, token, size, filters]);
 
   // Cargar datos cuando cambia el searchTerm con debounce
   useEffect(() => {
@@ -122,7 +146,7 @@ const TableCustom: React.FC<TableCustomProps> = ({
     debounceTimeoutRef.current = setTimeout(() => {
       const loadData = async () => {
         if (token) {
-          const result = await fetchData(endpoint, token, searchTerm);
+          const result = await fetchData(endpoint, token, searchTerm, filters);
           const content = result.data.content ? result.data.content : result.data;
           setData(content);
           setTotalPages(Math.ceil(content.length / size));
@@ -138,7 +162,7 @@ const TableCustom: React.FC<TableCustomProps> = ({
         clearTimeout(debounceTimeoutRef.current);
       }
     };
-  }, [searchTerm, endpoint, token, size]);
+  }, [searchTerm, endpoint, token, size, filters]);
 
   const handleDelete = async (id: string) => {
     if (token) {
@@ -151,6 +175,10 @@ const TableCustom: React.FC<TableCustomProps> = ({
     navigate(`/forms/${module}/${item[urlKey]}`);
   };
 
+  const handleView = (item: DataItem) => {
+    navigate(`/forms/${module}/${item[urlKey]}/view`);
+  };
+
   const paginatedData = data.slice(page * size, (page + 1) * size);
 
   const fixedColumns = [
@@ -159,13 +187,19 @@ const TableCustom: React.FC<TableCustomProps> = ({
       label: 'Actions',
       renderCell: (item: DataItem) => (
         <div className="flex flex-row items-center">
-          {module !== 'reservation-creation' && (
+          {(rol === 'SUPERVISOR') && (
+            <FaEye
+              onClick={() => handleView(item)}
+              style={{ cursor: 'pointer', marginRight: '10px' }}
+            />
+          )}
+          {(module !== 'reservation-creation' && rol !== 'SUPERVISOR') && (
             <FaEye
               onClick={() => handleEdit(item)}
               style={{ cursor: 'pointer', marginRight: '10px' }}
             />
           )}
-          {module !== 'reservation-creation' && (
+          {(module !== 'reservation-creation' && rol !== 'SUPERVISOR') && (
             <FaEdit
               onClick={() => handleEdit(item)}
               style={{ cursor: 'pointer', marginRight: '10px' }}
