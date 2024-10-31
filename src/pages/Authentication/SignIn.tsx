@@ -13,6 +13,8 @@ const SignIn: React.FC = () => {
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
   localStorage.removeItem('Role');
+  localStorage.removeItem('StoreId');
+  localStorage.removeItem('UserInfo');
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 

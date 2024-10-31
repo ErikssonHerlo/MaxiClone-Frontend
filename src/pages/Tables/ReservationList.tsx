@@ -19,7 +19,7 @@ const OrderList = () => {
         <TableCustom
           endpoint={storeId ? `http://35.237.124.228/api/v1/orders?storeId=${storeId}` : `http://35.237.124.228/api/v1/orders`}
           columns={columns}
-          module="reservation-creation"
+          module="create-order"
           urlKey="id"
         />
       </div>

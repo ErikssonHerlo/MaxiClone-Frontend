@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { CompactTable } from '@table-library/react-table-library/compact';
 import { useTheme } from '@table-library/react-table-library/theme';
 import { FaEye, FaEdit, FaTrash } from 'react-icons/fa';
@@ -45,15 +45,20 @@ const theme = {
   `,
 };
 
-const fetchData = async (endpoint: string, token: string) => {
-  const response = await fetch(endpoint, {
+const fetchData = async (endpoint: string, token: string, searchTerm?: string) => {
+  let url = endpoint;
+  if (searchTerm && searchTerm.trim() !== '') {
+    const separator = endpoint.includes('?') ? '&' : '?';
+    url = `${endpoint}${separator}filter=${encodeURIComponent(searchTerm)}`;
+  }
+  const response = await fetch(url, {
     method: 'GET',
     headers: {
       Authorization: `Bearer ${token}`,
       'Content-Type': 'application/json',
     },
   });
-  if(response.status === 401){
+  if (response.status === 401) {
     window.sessionStorage.removeItem('authToken');
     window.location.href = '/';
   }
@@ -84,7 +89,6 @@ const TableCustom: React.FC<TableCustomProps> = ({
   urlKey
 }) => {
   const [data, setData] = useState<DataItem[]>([]);
-  const [filteredData, setFilteredData] = useState<DataItem[]>([]);
   const [page, setPage] = useState(0);
   const [size] = useState(10);
   const [totalPages, setTotalPages] = useState(1);
@@ -93,32 +97,48 @@ const TableCustom: React.FC<TableCustomProps> = ({
 
   const token = window.sessionStorage.getItem('authToken');
 
+  const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Cargar datos al montar el componente
   useEffect(() => {
     const loadData = async () => {
       if (token) {
         const result = await fetchData(endpoint, token);
-        setData(result.data.content ? result.data.content : result.data);
-        setFilteredData(result.data.content ? result.data.content : result.data);
-        setTotalPages(Math.ceil( result.data.content ? (result.data.content.length / size) : (result.data.length / size)));
+        const content = result.data.content ? result.data.content : result.data;
+        setData(content);
+        setTotalPages(Math.ceil(content.length / size));
       }
     };
 
     loadData();
   }, [endpoint, token, size]);
 
+  // Cargar datos cuando cambia el searchTerm con debounce
   useEffect(() => {
-    const filtered = data.filter((item) =>
-      Object.values(item).some(
-        (value) =>
-          typeof value === 'string' &&
-          value.toLowerCase().includes(searchTerm.toLowerCase()),
-      ),
-    );
+    if (debounceTimeoutRef.current) {
+      clearTimeout(debounceTimeoutRef.current);
+    }
 
-    setFilteredData(filtered);
-    setTotalPages(Math.ceil(filtered.length / size));
-    setPage(0);
-  }, [searchTerm, data, size]);
+    debounceTimeoutRef.current = setTimeout(() => {
+      const loadData = async () => {
+        if (token) {
+          const result = await fetchData(endpoint, token, searchTerm);
+          const content = result.data.content ? result.data.content : result.data;
+          setData(content);
+          setTotalPages(Math.ceil(content.length / size));
+          setPage(0);
+        }
+      };
+
+      loadData();
+    }, 300); // Espera 300ms después de que el usuario deja de escribir
+
+    return () => {
+      if (debounceTimeoutRef.current) {
+        clearTimeout(debounceTimeoutRef.current);
+      }
+    };
+  }, [searchTerm, endpoint, token, size]);
 
   const handleDelete = async (id: string) => {
     if (token) {
@@ -131,7 +151,7 @@ const TableCustom: React.FC<TableCustomProps> = ({
     navigate(`/forms/${module}/${item[urlKey]}`);
   };
 
-  const paginatedData = filteredData.slice(page * size, (page + 1) * size);
+  const paginatedData = data.slice(page * size, (page + 1) * size);
 
   const fixedColumns = [
     ...columns,
@@ -141,20 +161,22 @@ const TableCustom: React.FC<TableCustomProps> = ({
         <div className="flex flex-row items-center">
           {module !== 'reservation-creation' && (
             <FaEye
-            onClick={() => handleEdit(item)}
-            style={{ cursor: 'pointer', marginRight: '10px' }}
-          />
+              onClick={() => handleEdit(item)}
+              style={{ cursor: 'pointer', marginRight: '10px' }}
+            />
           )}
           {module !== 'reservation-creation' && (
-          <FaEdit
-            onClick={() => handleEdit(item)}
-            style={{ cursor: 'pointer', marginRight: '10px' }}
-          />
+            <FaEdit
+              onClick={() => handleEdit(item)}
+              style={{ cursor: 'pointer', marginRight: '10px' }}
+            />
           )}
-          <FaTrash
-            onClick={() => handleDelete(item[urlKey])}
-            style={{ cursor: 'pointer' }}
-          />
+          {module !== 'create-order' && (
+            <FaTrash
+              onClick={() => handleDelete(item[urlKey])}
+              style={{ cursor: 'pointer' }}
+            />
+          )}
         </div>
       ),
     },
@@ -175,9 +197,9 @@ const TableCustom: React.FC<TableCustomProps> = ({
             >
               <path
                 stroke="currentColor"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
                 d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
               />
             </svg>
@@ -186,7 +208,7 @@ const TableCustom: React.FC<TableCustomProps> = ({
             type="text"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:focus:ring-blue-500 dark:focus:border-blue-500"
+            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:focus:ring-blue-500 dark:focus:border-blue-500"
             placeholder="Search..."
             required
           />
@@ -209,7 +231,7 @@ const TableCustom: React.FC<TableCustomProps> = ({
         </span>
         <button
           onClick={() => setPage(page + 1)}
-          disabled={page + 1 === totalPages}
+          disabled={page + 1 >= totalPages}
         >
           Next
         </button>

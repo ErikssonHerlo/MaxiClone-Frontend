@@ -79,6 +79,15 @@ function App() {
             </>
           }
         />
+         <Route
+          path="/supervisor-dashboard"
+          element={
+            <>
+              <PageTitle title="Dashboard" />
+              <OrderList />
+            </>
+          }
+        />
         <Route
           path="/calendar"
           element={

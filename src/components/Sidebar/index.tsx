@@ -212,7 +212,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                         <ul className="mt-4 mb-5.5 flex flex-col gap-2.5 pl-6">
                           <li>
                             <NavLink
-                              to="/tables/books"
+                              to={"../"+rol.toLowerCase()+"-dashboard"}
                               className={({ isActive }) =>
                                 'group relative flex items-center gap-2.5 rounded-md px-4 font-medium text-bodydark2 duration-300 ease-in-out hover:text-white ' +
                                 (isActive && '!text-white')
@@ -261,7 +261,8 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
               {/* <!-- Menu Item Profile --> */}
 
               {/* <!-- Menu Item Books --> */}
-              <SidebarLinkGroup activeCondition={pathname.includes('book')}>
+              {rol !== 'SUPERVISOR' && (
+                <SidebarLinkGroup activeCondition={pathname.includes('book')}>
                 {(handleClick, open) => {
                   return (
                     <React.Fragment>
@@ -379,6 +380,8 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                   );
                 }}
               </SidebarLinkGroup>
+              )}
+
               {/* <!-- Menu Item Forms --> */}
 
 
@@ -495,6 +498,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
               {/* <!-- Menu Item Forms --> */}
 
               {/* <!-- Menu Item Prestamos --> */}
+
               <SidebarLinkGroup activeCondition={pathname.includes('loan')}>
                 {(handleClick, open) => {
                   return (
@@ -615,7 +619,8 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
               </SidebarLinkGroup>
               {/* <!-- Menu Item Forms --> */}
  {/* <!-- Menu Item Prestamos --> */}
- <SidebarLinkGroup activeCondition={pathname.includes('loan')}>
+ {rol !== 'SUPERVISOR' && (
+    <SidebarLinkGroup activeCondition={pathname.includes('loan')}>
                 {(handleClick, open) => {
                   return (
                     <React.Fragment>
@@ -719,8 +724,10 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                   );
                 }}
               </SidebarLinkGroup>
-              {/* <!-- Menu Item Forms --> */}
 
+ )}
+
+              {/* <!-- Menu Item Forms --> */}
               {/* <!-- Menu Item Users --> */}
               <SidebarLinkGroup activeCondition={pathname.includes('user')}>
                 {(handleClick, open) => {

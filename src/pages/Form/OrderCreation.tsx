@@ -5,10 +5,13 @@ import DefaultLayout from '../../layout/DefaultLayout';
 import { ToastContainer, toast } from 'react-toastify';
 import { sleep } from '../../common/utils';
 
+const DEFAULT_IMAGE_URL = "https://as2.ftcdn.net/v2/jpg/04/99/93/31/1000_F_499933117_ZAUBfv3P1HEOsZDrnkbNCt4jc3AodArl.jpg";
+
 const OrderCreation = () => {
     const navigate = useNavigate();
     const { id } = useParams();
     const [totalOrder, setTotalOrder] = useState(0);
+    const [orderStatus, setOrderStatus] = useState('');
     const [role, setRoleCode] = useState('');
     const [skuInput, setSkuInput] = useState('');
     const [orderDetails, setOrderDetails] = useState([]);
@@ -20,12 +23,53 @@ const OrderCreation = () => {
         navigate('/'); // Si no hay token, redirigir al inicio de sesión
     }
 
+    // Función para buscar los detalles de un producto por SKU (productId)
+    const fetchProductDetails = async (productId) => {
+        try {
+            const response = await fetch(
+                `http://35.237.124.228/api/v1/catalog/products/${productId}`,
+                {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${authToken}`,
+                    },
+                }
+            );
+            if (!response.ok) throw new Error('Producto no encontrado');
+            const result = await response.json();
+            const product = result.data;
+
+            // Calcular availableStock
+            const availableStock = product.totalStock - product.pendingStock;
+
+            return {
+                ...product,
+                availableStock: availableStock,
+            };
+        } catch (error) {
+            console.error(`Error fetching product details for SKU ${productId}:`, error);
+            // Retornar datos básicos con la URL de imagen por defecto
+            return {
+                sku: productId,
+                name: 'Producto Desconocido',
+                coverImageUrl: DEFAULT_IMAGE_URL,
+                cost: 0,
+                price: 0,
+                totalStock: 0,
+                pendingStock: 0,
+                availableStock: 0,
+            };
+        }
+    };
+
     useEffect(() => {
+        // Cargar datos de la orden si se está editando
         if (id) {
-            const fetchUser = async () => {
+            const fetchOrder = async () => {
                 try {
                     const response = await fetch(
-                        `http://35.237.124.228/api/v1/users/${id}`,
+                        `http://35.237.124.228/api/v1/orders/${id}`,
                         {
                             method: 'GET',
                             headers: {
@@ -41,148 +85,164 @@ const OrderCreation = () => {
                         }
                         throw new Error('Network response was not ok');
                     }
-                    const userData = await response.json();
-                    setTotalOrder(userData.data.totalOrder);
-                    setRoleCode(userData.data.role);
-                } catch (error) { }
+                    const orderData = await response.json();
+                    const detailsWithImages = await Promise.all(
+                        orderData.data.orderDetails.map(async (detail) => {
+                            const productData = await fetchProductDetails(detail.productId);
+                            return {
+                                ...detail,
+                                productData, // Agregar datos del producto, incluyendo la imagen y availableStock
+                            };
+                        })
+                    );
+                    setOrderDetails(detailsWithImages);
+                    setOrderStatus(orderData.data.orderStatus);
+                    setTotalOrder(orderData.data.totalOrder);
+                    setRoleCode(orderData.data.role);
+                } catch (error) {
+                    console.error(error);
+                }
             };
-            fetchUser();
+            fetchOrder();
         }
     }, [id]);
 
     // Función para buscar producto por SKU
-    // Función para buscar producto por SKU con validación de stock
-const handleSkuSearch = async (e) => {
-    e.preventDefault();
-    setProductLoading(true);
-    try {
-        const response = await fetch(
-            `http://35.237.124.228/api/v1/catalog/products/${skuInput}`,
-            {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${authToken}`,
-                },
-            },
-        );
+    const handleSkuSearch = async (e) => {
+        e.preventDefault();
+        setProductLoading(true);
+        try {
+            const product = await fetchProductDetails(skuInput);
 
-        if (!response.ok) {
-            if (response.status === 401) {
-                window.sessionStorage.removeItem('authToken');
-                window.location.href = '/';
-            }
-            throw new Error('Producto no encontrado');
-        }
-
-        const result = await response.json();
-        const product = result.data;
-
-        // Verificar si el producto ya está en los detalles
-        const existingProduct = orderDetails.find(
-            (item) => item.productId === product.sku
-        );
-
-        if (existingProduct) {
-            showErrorMessage('El producto ya está en la lista');
-        } else if (product.totalStock === 0) {
-            // Validación para productos sin stock
-            showErrorMessage(`El producto ${product.name} no tiene stock disponible y no puede ser agregado.`);
-        } else {
-            // Agregar producto a los detalles de la orden
-            const newOrderDetail = {
-                productId: product.sku,
-                quantityRequested: 1,
-                unitCost: product.cost,
-                totalCost: product.cost * 1,
-                productData: product, // Guardamos los datos adicionales del producto
-            };
-
-            setOrderDetails([...orderDetails, newOrderDetail]);
-            setTotalOrder(
-                totalOrder + newOrderDetail.totalCost
+            const existingProduct = orderDetails.find(
+                (item) => item.productId === product.sku
             );
-            setSkuInput('');
-        }
-    } catch (error) {
-        console.error('Error:', error);
-        showErrorMessage('Producto no encontrado');
-    } finally {
-        setProductLoading(false);
-    }
-};
 
+            if (existingProduct) {
+                showErrorMessage('El producto ya está en la lista');
+            } else if (product.availableStock === 0) {
+                showErrorMessage(`El producto ${product.name} no tiene stock disponible y no puede ser agregado.`);
+            } else {
+                // Ajustar availableStock restando la cantidad inicial solicitada (1)
+                const adjustedAvailableStock = product.availableStock - 1;
+
+                const newOrderDetail = {
+                    productId: product.sku,
+                    quantityRequested: 1,
+                    unitCost: product.cost,
+                    totalCost: product.cost * 1,
+                    productData: {
+                        ...product,
+                        initialStock: product.availableStock,
+                        availableStock: adjustedAvailableStock,
+                    },
+                };
+
+                setOrderDetails([...orderDetails, newOrderDetail]);
+                setTotalOrder(totalOrder + newOrderDetail.totalCost);
+                setSkuInput('');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            showErrorMessage('Producto no encontrado');
+        } finally {
+            setProductLoading(false);
+        }
+    };
 
     // Función para eliminar un producto de la lista
     const handleRemoveProduct = (productId) => {
-        const updatedOrderDetails = orderDetails.filter(
-            (item) => item.productId !== productId
-        );
         const removedProduct = orderDetails.find(
             (item) => item.productId === productId
         );
-        setOrderDetails(updatedOrderDetails);
-        setTotalOrder(
-            totalOrder - removedProduct.totalCost
+        const updatedOrderDetails = orderDetails.filter(
+            (item) => item.productId !== productId
         );
+        setOrderDetails(updatedOrderDetails);
+        setTotalOrder(totalOrder - removedProduct.totalCost);
     };
 
-    // Función para actualizar la cantidad solicitada
-    // Función para actualizar la cantidad solicitada con validación de stock
-const handleQuantityChange = (productId, quantity) => {
-    const updatedOrderDetails = orderDetails.map((item) => {
-        if (item.productId === productId) {
-            // Validación para que la cantidad no exceda el stock disponible
-            if (quantity > item.productData.totalStock) {
-                showErrorMessage(`No hay suficiente stock para ${item.productData.name}. Disponible: ${item.productData.totalStock}`);
-                return item; // Retornar sin cambiar la cantidad
+    const handleQuantityChange = (productId, quantity) => {
+        const updatedOrderDetails = orderDetails.map((item) => {
+            if (item.productId === productId) {
+                const quantityChange = quantity - item.quantityRequested;
+                const maxQuantity = item.productData.availableStock + item.quantityRequested;
+
+                if (quantity > maxQuantity) {
+                    showErrorMessage(`No hay suficiente stock para ${item.productData.name}. Disponible: ${maxQuantity}`);
+                    return item;
+                }
+
+                // Actualizar el availableStock del producto en consecuencia
+                const updatedProductData = {
+                    ...item.productData,
+                    availableStock: item.productData.availableStock - quantityChange,
+                };
+
+                const newTotalCost = item.unitCost * quantity;
+                return {
+                    ...item,
+                    quantityRequested: quantity,
+                    totalCost: newTotalCost,
+                    productData: updatedProductData,
+                };
             }
-            const newTotalCost = item.unitCost * quantity;
-            return {
-                ...item,
-                quantityRequested: quantity,
-                totalCost: newTotalCost,
-            };
-        }
-        return item;
-    });
-    setOrderDetails(updatedOrderDetails);
+            return item;
+        });
 
-    // Recalcular el total de la orden
-    const newTotalOrder = updatedOrderDetails.reduce(
-        (sum, item) => sum + item.totalCost,
-        0
-    );
-    setTotalOrder(newTotalOrder);
-};
+        setOrderDetails(updatedOrderDetails);
 
+        // Recalcular el total de la orden
+        const newTotalOrder = updatedOrderDetails.reduce(
+            (sum, item) => sum + item.totalCost,
+            0
+        );
+        setTotalOrder(newTotalOrder);
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        const orderData = {
-            totalOrder,
-            createOrderDetailDto: orderDetails.map((item) => ({
-                productId: item.productId,
-                quantityRequested: item.quantityRequested,
-                unitCost: item.unitCost,
-                totalCost: item.totalCost,
-            })),
-        };
+        const orderData = id
+            ? {
+                  totalOrder,
+                  orderStatus,
+                  storeId,
+                  createOrderDetailDto: orderDetails.map((item) => ({
+                      productId: item.productId,
+                      quantityRequested: item.quantityRequested,
+                      unitCost: item.unitCost,
+                      totalCost: item.totalCost,
+                  })),
+              }
+            : {
+                  totalOrder,
+                  storeId,
+                  createOrderDetailDto: orderDetails.map((item) => ({
+                      productId: item.productId,
+                      quantityRequested: item.quantityRequested,
+                      unitCost: item.unitCost,
+                      totalCost: item.totalCost,
+                  })),
+              };
 
         try {
             console.log(JSON.stringify(orderData));
-            const response = await fetch(
-                `http://35.237.124.228/api/v1/stores/${storeId}/order`,
-                {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        Authorization: `Bearer ${authToken}`,
-                    },
-                    body: JSON.stringify(orderData),
+
+            // Determinar la URL y el método según si es creación o actualización
+            const url = id
+                ? `http://35.237.124.228/api/v1/orders/${id}` // URL de actualización si existe `id`
+                : `http://35.237.124.228/api/v1/stores/${storeId}/order`; // URL de creación si no existe `id`
+            const method = id ? 'PUT' : 'POST'; // Usar 'PUT' para actualizar y 'POST' para crear
+
+            const response = await fetch(url, {
+                method: method,
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${authToken}`,
                 },
-            );
+                body: JSON.stringify(orderData),
+            });
 
             if (!response.ok) {
                 console.error(response);
@@ -195,14 +255,19 @@ const handleQuantityChange = (productId, quantity) => {
 
             const result = await response.json();
             console.log(result);
-            showSuccessMessage('Orden creada exitosamente');
-            sleep(3000);
+
+            // Mensaje de éxito según la operación
+            showSuccessMessage(id ? 'Orden actualizada exitosamente' : 'Orden creada exitosamente');
+            await sleep(3000);
+
             // Redirigir o limpiar el formulario según sea necesario
             navigate('../tables/orders'); // Por ejemplo, redirigir a la lista de órdenes
         } catch (error) {
             console.error('Error:', error);
             showErrorMessage(
-                'Error al crear la orden. Por favor, intenta de nuevo.'
+                id
+                    ? 'Error al actualizar la orden. Por favor, intenta de nuevo.'
+                    : 'Error al crear la orden. Por favor, intenta de nuevo.'
             );
         }
     };
@@ -221,7 +286,7 @@ const handleQuantityChange = (productId, quantity) => {
 
     return (
         <DefaultLayout>
-            <Breadcrumb pageName={'Crear orden'} />
+            <Breadcrumb pageName={id ? 'Actualizar Orden' : 'Crear Orden'} />
 
             <div className="flex justify-between">
                 {/* Sección Izquierda */}
@@ -230,7 +295,7 @@ const handleQuantityChange = (productId, quantity) => {
                     <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark mb-6">
                         <div className="border-b border-stroke py-4 px-6.5 dark:border-strokedark">
                             <h3 className="font-medium text-black dark:text-white">
-                                Crear orden
+                                {id ? 'Actualizar Orden' : 'Crear Orden'}
                             </h3>
                         </div>
                         <form onSubmit={handleSubmit}>
@@ -252,7 +317,7 @@ const handleQuantityChange = (productId, quantity) => {
                                     type="submit"
                                     className="flex w-full justify-center rounded bg-primary p-3 font-medium text-gray hover:bg-opacity-90"
                                 >
-                                    Crear orden
+                                    {id ? 'Actualizar Orden' : 'Crear Orden'}
                                 </button>
                             </div>
                         </form>
@@ -323,6 +388,9 @@ const handleQuantityChange = (productId, quantity) => {
                                             </h4>
                                             <p className="text-sm text-gray-500">
                                                 Precio Unitario: ${item.unitCost}
+                                            </p>
+                                            <p className="text-sm text-gray-500">
+                                                Stock Disponible: {item.productData.availableStock + item.quantityRequested}
                                             </p>
                                             <div className="flex items-center mt-2">
                                                 <label className="mr-2 text-black dark:text-white">
