@@ -49,7 +49,9 @@ const fetchData = async (
   endpoint: string,
   token: string,
   searchTerm?: string,
-  filters?: string
+  filters?: string,
+  pageParam?: number,
+  sizeParam?: number
 ) => {
   let url = endpoint;
   const urlParams = [];
@@ -66,6 +68,14 @@ const fetchData = async (
 
   if (searchTerm && searchTerm.trim() !== '') {
     urlParams.push(`filter=${encodeURIComponent(searchTerm)}`);
+  }
+
+  if (typeof pageParam === 'number') {
+    urlParams.push(`page=${pageParam}`);
+  }
+
+  if (typeof sizeParam === 'number') {
+    urlParams.push(`size=${sizeParam}`);
   }
 
   if (urlParams.length > 0) {
@@ -123,19 +133,19 @@ const TableCustom: React.FC<TableCustomProps> = ({
 
   const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Cargar datos al montar el componente
-  useEffect(() => {
-    const loadData = async () => {
-      if (token) {
-        const result = await fetchData(endpoint, token, undefined, filters);
-        const content = result.data.content ? result.data.content : result.data;
-        setData(content);
-        setTotalPages(Math.ceil(content.length / size));
-      }
-    };
+  const loadData = async () => {
+    if (token) {
+      const result = await fetchData(endpoint, token, searchTerm, filters, page, size);
+      const content = result.data.content ? result.data.content : result.data;
+      setData(content);
+      setTotalPages(result.totalPages || 1);
+    }
+  };
 
+  // Cargar datos al montar el componente y cuando cambien los parámetros relevantes
+  useEffect(() => {
     loadData();
-  }, [endpoint, token, size, filters]);
+  }, [endpoint, token, size, filters, page]);
 
   // Cargar datos cuando cambia el searchTerm con debounce
   useEffect(() => {
@@ -144,17 +154,8 @@ const TableCustom: React.FC<TableCustomProps> = ({
     }
 
     debounceTimeoutRef.current = setTimeout(() => {
-      const loadData = async () => {
-        if (token) {
-          const result = await fetchData(endpoint, token, searchTerm, filters);
-          const content = result.data.content ? result.data.content : result.data;
-          setData(content);
-          setTotalPages(Math.ceil(content.length / size));
-          setPage(0);
-        }
-      };
-
       loadData();
+      setPage(0);
     }, 300); // Espera 300ms después de que el usuario deja de escribir
 
     return () => {
@@ -162,7 +163,7 @@ const TableCustom: React.FC<TableCustomProps> = ({
         clearTimeout(debounceTimeoutRef.current);
       }
     };
-  }, [searchTerm, endpoint, token, size, filters]);
+  }, [searchTerm]);
 
   const handleDelete = async (id: string) => {
     if (token) {
@@ -179,7 +180,7 @@ const TableCustom: React.FC<TableCustomProps> = ({
     navigate(`/forms/${module}/${item[urlKey]}/view`);
   };
 
-  const paginatedData = data.slice(page * size, (page + 1) * size);
+  const displayedData = data;
 
   const fixedColumns = [
     ...columns,
@@ -187,25 +188,37 @@ const TableCustom: React.FC<TableCustomProps> = ({
       label: 'Actions',
       renderCell: (item: DataItem) => (
         <div className="flex flex-row items-center">
-          {(rol === 'SUPERVISOR') && (
+          {(module !== 'shipment-creation' && (rol === 'SUPERVISOR' || rol === 'WAREHOUSE')) && (
             <FaEye
               onClick={() => handleView(item)}
               style={{ cursor: 'pointer', marginRight: '10px' }}
             />
           )}
-          {(module !== 'reservation-creation' && rol !== 'SUPERVISOR') && (
+          {(module === 'shipment-creation' && (rol === 'STORE' || rol === 'ADMINISTRATOR')) && (
+            <FaEye
+              onClick={() => handleView(item)}
+              style={{ cursor: 'pointer', marginRight: '10px' }}
+            />
+          )}
+          {(module !== 'shipment-creation' && rol !== 'SUPERVISOR' && rol !== 'WAREHOUSE' && rol !== 'ADMINISTRATOR') && (
             <FaEye
               onClick={() => handleEdit(item)}
               style={{ cursor: 'pointer', marginRight: '10px' }}
             />
           )}
-          {(module !== 'reservation-creation' && rol !== 'SUPERVISOR') && (
+          {(module !== 'shipment-creation' && module !== 'reservation-creation' && rol !== 'SUPERVISOR' && rol !== 'WAREHOUSE' && rol !== 'STORE' && rol !== 'ADMINISTRATOR') && (
+            <FaEye
+              onClick={() => handleEdit(item)}
+              style={{ cursor: 'pointer', marginRight: '10px' }}
+            />
+          )}
+          {(module !== 'shipment-creation' && module !== 'reservation-creation' && rol !== 'SUPERVISOR' && rol !== 'WAREHOUSE') && (
             <FaEdit
               onClick={() => handleEdit(item)}
               style={{ cursor: 'pointer', marginRight: '10px' }}
             />
           )}
-          {module !== 'create-order' && (
+          {module !== 'shipment-creation' && module !== 'create-order' && (
             <FaTrash
               onClick={() => handleDelete(item[urlKey])}
               style={{ cursor: 'pointer' }}
@@ -251,7 +264,7 @@ const TableCustom: React.FC<TableCustomProps> = ({
 
       <CompactTable
         columns={fixedColumns}
-        data={{ nodes: paginatedData }}
+        data={{ nodes: displayedData }}
         theme={useTheme(theme)}
       />
       <div

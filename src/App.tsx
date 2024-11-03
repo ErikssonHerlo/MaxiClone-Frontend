@@ -35,6 +35,16 @@ import ResetPassword from './pages/Authentication/RecoverPassword';
 import CatalogStore from './pages/Tables/CatalogStoreLit';
 import OrderCreation from './pages/Form/OrderCreation';
 import OrderView from './pages/Form/OrderView';
+import ShipmentView from './pages/Form/ShipmentView';
+import ReportStoreProduct from './pages/Form/ReportStoreProduct';
+import ReportOrdersTimeStatus from './pages/Form/ReportOrdersTimeStatus';
+import ReportShipmentTime from './pages/Form/ReportShipmentTime';
+import ReportOrdersTimeStatusStore from './pages/Form/ReportOrdersTimeStatusStore';
+import ReportShipmentTimeStore from './pages/Form/ReportShipmentTimeStore';
+import ReportTop5StoresOrdersTimeStatus from './pages/Form/ReportTop5StoresOrdersTimeStatus';
+import ReportTop5UsersOrdersTime from './pages/Form/ReportTop5UsersOrdersTime';
+import ReportTop5ProductsOrdersTime from './pages/Form/ReportTop5ProductsOrdersTime';
+import ReportTop5UsersShipmentsTime from './pages/Form/ReportTop5UsersShipmentsTime';
 
 function App() {
   const [loading, setLoading] = useState<boolean>(true);
@@ -82,6 +92,15 @@ function App() {
         />
          <Route
           path="/supervisor-dashboard"
+          element={
+            <>
+              <PageTitle title="Dashboard" />
+              <OrderList />
+            </>
+          }
+        />
+          <Route
+          path="/warehouse-dashboard"
           element={
             <>
               <PageTitle title="Dashboard" />
@@ -254,6 +273,98 @@ function App() {
         />
 
 <Route
+          path="/forms/reports/store-products"
+          element={
+            <>
+              <PageTitle title="Reporte de productos de tienda" />
+              <ReportStoreProduct />
+            </>
+          }
+        />
+
+<Route
+          path="/forms/reports/orders-time"
+          element={
+            <>
+              <PageTitle title="Reporte de ordenes por tiempo" />
+              <ReportOrdersTimeStatus />
+            </>
+          }
+        />
+
+<Route
+          path="/forms/reports/shipment-time"
+          element={
+            <>
+              <PageTitle title="Reporte de envios por tiempo" />
+              <ReportShipmentTime />
+            </>
+          }
+        />
+
+<Route
+          path="/forms/reports/shipment-time-store"
+          element={
+            <>
+              <PageTitle title="Reporte de envios por tiempo" />
+              <ReportShipmentTimeStore />
+            </>
+          }
+        />
+
+<Route
+          path="/forms/reports/orders-time-store"
+          element={
+            <>
+              <PageTitle title="Reporte de ordenes por tiempo y tienda" />
+              <ReportOrdersTimeStatusStore />
+            </>
+          }
+        />
+
+<Route
+          path="/forms/reports/top-5-stores-time"
+          element={
+            <>
+              <PageTitle title="Reporte top 5 tiendas" />
+              <ReportTop5StoresOrdersTimeStatus />
+            </>
+          }
+        />
+
+
+<Route
+          path="/forms/reports/top-5-users-shipments-time"
+          element={
+            <>
+              <PageTitle title="Reporte top 5 usuarios con envios" />
+              <ReportTop5UsersShipmentsTime />
+            </>
+          }
+        />
+
+
+<Route
+          path="/forms/reports/top-5-users-orders-time"
+          element={
+            <>
+              <PageTitle title="Reporte top 5 usuarios con ordenes" />
+              <ReportTop5UsersOrdersTime />
+            </>
+          }
+        />
+
+<Route
+          path="/forms/reports/top-products-requested-time"
+          element={
+            <>
+              <PageTitle title="Reporte top productos mas pedidos" />
+              <ReportTop5ProductsOrdersTime />
+            </>
+          }
+        />
+
+<Route
           path="/forms/create-order/:id?"
           element={
             <>
@@ -273,12 +384,22 @@ function App() {
           }
         />
 
-        <Route
-          path="/forms/carreer-creation/:id?"
+<Route
+          path="/forms/create-order/:id?/view"
           element={
             <>
-              <PageTitle title="Creacion de carrera" />
-              <CarreerCreation />
+              <PageTitle title="Creacion de ordenes" />
+              <OrderView />
+            </>
+          }
+        />
+
+    <Route
+          path="/forms/shipment-creation/:id?/view"
+          element={
+            <>
+              <PageTitle title="Ver envio" />
+              <ShipmentView />
             </>
           }
         />

@@ -23,6 +23,9 @@ const OrderCreation = () => {
         navigate('/'); // Si no hay token, redirigir al inicio de sesión
     }
 
+    // Función para verificar si el estado de la orden permite edición
+    const isEditableStatus = ['REQUESTED', 'REJECTED', 'PENDING'].includes(orderStatus) || !id; // Si no hay id (creación), es editable
+
     // Función para buscar los detalles de un producto por SKU (productId)
     const fetchProductDetails = async (productId) => {
         try {
@@ -291,7 +294,7 @@ const OrderCreation = () => {
             <div className="flex justify-between">
                 {/* Sección Izquierda */}
                 <div className="w-1/2 pr-4">
-                    {/* Caja para crear orden */}
+                    {/* Caja para crear o actualizar orden */}
                     <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark mb-6">
                         <div className="border-b border-stroke py-4 px-6.5 dark:border-strokedark">
                             <h3 className="font-medium text-black dark:text-white">
@@ -313,49 +316,53 @@ const OrderCreation = () => {
                                     />
                                 </div>
 
-                                <button
-                                    type="submit"
-                                    className="flex w-full justify-center rounded bg-primary p-3 font-medium text-gray hover:bg-opacity-90"
-                                >
-                                    {id ? 'Actualizar Orden' : 'Crear Orden'}
-                                </button>
+                                {isEditableStatus && (
+                                    <button
+                                        type="submit"
+                                        className="flex w-full justify-center rounded bg-primary p-3 font-medium text-white hover:bg-opacity-90"
+                                    >
+                                        {id ? 'Actualizar Orden' : 'Crear Orden'}
+                                    </button>
+                                )}
                             </div>
                         </form>
                     </div>
 
-                    {/* Caja para buscar SKU */}
-                    <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
-                        <div className="border-b border-stroke py-4 px-6.5 dark:border-strokedark">
-                            <h3 className="font-medium text-black dark:text-white">
-                                Buscar Producto por SKU
-                            </h3>
-                        </div>
-                        <form onSubmit={handleSkuSearch}>
-                            <div className="p-6.5">
-                                <div className="mb-4.5">
-                                    <label className="mb-2.5 block text-black dark:text-white">
-                                        SKU del Producto <span className="text-meta-1">*</span>
-                                    </label>
-                                    <input
-                                        type="text"
-                                        value={skuInput}
-                                        onChange={(e) => setSkuInput(e.target.value)}
-                                        required
-                                        placeholder="Ingrese el SKU del producto"
-                                        className="w-full rounded border-[1.5px] border-stroke py-3 px-5 text-black outline-none transition focus:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white"
-                                    />
+                    {/* Mostrar formulario para buscar SKU solo si la orden es editable */}
+                    {isEditableStatus && (
+                        <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
+                            <div className="border-b border-stroke py-4 px-6.5 dark:border-strokedark">
+                                <h3 className="font-medium text-black dark:text-white">
+                                    Buscar Producto por SKU
+                                </h3>
+                            </div>
+                            <form onSubmit={handleSkuSearch}>
+                                <div className="p-6.5">
+                                    <div className="mb-4.5">
+                                        <label className="mb-2.5 block text-black dark:text-white">
+                                            SKU del Producto <span className="text-meta-1">*</span>
+                                        </label>
+                                        <input
+                                            type="text"
+                                            value={skuInput}
+                                            onChange={(e) => setSkuInput(e.target.value)}
+                                            required
+                                            placeholder="Ingrese el SKU del producto"
+                                            className="w-full rounded border-[1.5px] border-stroke py-3 px-5 text-black outline-none transition focus:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white"
+                                        />
+                                    </div>
+
+                                    <button
+                                        type="submit"
+                                        className="flex w-full justify-center rounded bg-secondary p-3 font-medium text-white hover:bg-opacity-90"
+                                        disabled={productLoading}
+                                    >
+                                        {productLoading ? 'Buscando...' : 'Agregar Producto'}
+                                    </button>
                                 </div>
-
-                                <button
-                                    type="submit"
-                                    className="flex w-full justify-center rounded bg-secondary p-3 font-medium text-gray hover:bg-opacity-90"
-                                    disabled={productLoading}
-                                >
-                                    {productLoading ? 'Buscando...' : 'Agregar Producto'}
-                                </button>
-                            </div>
-                        </form>
-                    </div>
+                            </form>
+                        </div>
+                    )}
                 </div>
 
                 {/* Sección Derecha */}
@@ -407,18 +414,22 @@ const OrderCreation = () => {
                                                         )
                                                     }
                                                     className="w-20 rounded border-[1.5px] border-stroke py-1 px-2 text-black outline-none transition focus:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white"
+                                                    disabled={!isEditableStatus}
                                                 />
                                             </div>
                                             <p className="mt-2 text-sm text-gray-500">
                                                 Total: ${item.totalCost.toFixed(2)}
                                             </p>
                                         </div>
-                                        <button
-                                            onClick={() => handleRemoveProduct(item.productId)}
-                                            className="ml-4 text-red-500 hover:text-red-700"
-                                        >
-                                            Eliminar
-                                        </button>
+                                        {/* Mostrar botón de eliminar solo si la orden es editable */}
+                                        {isEditableStatus && (
+                                            <button
+                                                onClick={() => handleRemoveProduct(item.productId)}
+                                                className="ml-4 text-red-500 hover:text-red-700"
+                                            >
+                                                Eliminar
+                                            </button>
+                                        )}
                                     </div>
                                 ))
                             )}

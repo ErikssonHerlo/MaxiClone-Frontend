@@ -14,6 +14,7 @@ const SignIn: React.FC = () => {
   const navigate = useNavigate();
   localStorage.removeItem('Role');
   localStorage.removeItem('StoreId');
+  localStorage.removeItem('StoreIds');
   localStorage.removeItem('UserInfo');
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -58,10 +59,12 @@ const SignIn: React.FC = () => {
           if (userInfo.data.role === 'ADMINISTRATOR') {
             navigate('/administrator-dashboard');
           }else if(userInfo.data.role === 'WAREHOUSE'){
+            localStorage.setItem('StoreIds', userInfo.data.storeId);
             navigate('/warehouse-dashboard');
           }else if(userInfo.data.role === 'SUPERVISOR'){
             navigate('/supervisor-dashboard');
           }else if(userInfo.data.role === 'STORE'){
+            localStorage.setItem('StoreIds', userInfo.data.storeId);
             localStorage.setItem('StoreId', userInfo.data.storeId[0]);
             navigate('/store-dashboard');
           }

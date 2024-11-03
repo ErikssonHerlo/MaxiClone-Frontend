@@ -13,15 +13,17 @@ const ShipmentsList = () => {
     { label: 'Total Shipment', renderCell: (item) => item.totalShipment },
     { label: 'Status', renderCell: (item) => item.shipmentStatus },
   ];
-
+  const storeIds = localStorage.getItem('StoreIds');
   return (
     <DefaultLayout>
       <Breadcrumb pageName="Listado de Envios" />
       <div className="flex flex-col gap-10">
         <TableCustom
-          endpoint="http://35.237.124.228/api/v1/shipments"
+          endpoint={
+            storeIds ? `http://35.237.124.228/api/v1/shipments?storeId=${storeIds}` : `http://35.237.124.228/api/v1/shipments`
+          }
           columns={columns}
-          module="reservation-creation"
+          module="shipment-creation"
           urlKey="id"
         />
       </div>

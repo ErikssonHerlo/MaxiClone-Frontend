@@ -8,15 +8,20 @@ import { sleep } from '../../common/utils';
 const DEFAULT_IMAGE_URL = "https://as2.ftcdn.net/v2/jpg/04/99/93/31/1000_F_499933117_ZAUBfv3P1HEOsZDrnkbNCt4jc3AodArl.jpg";
 
 const OrderView = () => {
+    const rol = localStorage.getItem('Role');
     const navigate = useNavigate();
     const { id } = useParams();
     const [totalOrder, setTotalOrder] = useState(0);
     const [orderStatus, setOrderStatus] = useState('');
+    const [departureDate, setDepartureDate] = useState('');
     const [role, setRoleCode] = useState('');
     const [skuInput, setSkuInput] = useState('');
     const [rejectionReason, setRejectionReason] = useState('');
     const [orderDetails, setOrderDetails] = useState([]);
     const [productLoading, setProductLoading] = useState(false);
+
+    const [storeIdFromOrder, setStoreIdFromOrder] = useState('');
+    const [userIdFromOrder, setUserIdFromOrder] = useState('');
 
     const authToken = sessionStorage.getItem('authToken');
     const storeId = localStorage.getItem('StoreId');
@@ -64,7 +69,7 @@ const OrderView = () => {
         }
     };
 
-    const fetchOrderStatusUpdate = async (status,rejectionReason) => {
+    const fetchOrderStatusUpdate = async (status, rejectionReason) => {
         try {
             const response = await fetch(
                 `http://35.237.124.228/api/v1/orders/${id}/status`,
@@ -74,7 +79,7 @@ const OrderView = () => {
                         'Content-Type': 'application/json',
                         Authorization: `Bearer ${authToken}`,
                     },
-                    body: JSON.stringify({ orderStatus:status, rejectionReason }),
+                    body: JSON.stringify({ orderStatus: status, rejectionReason }),
                 }
             );
             if (!response.ok) {
@@ -123,6 +128,10 @@ const OrderView = () => {
                     setOrderStatus(orderData.data.orderStatus);
                     setTotalOrder(orderData.data.totalOrder);
                     setRoleCode(orderData.data.role);
+
+                    // Almacenar storeId y userId
+                    setStoreIdFromOrder(orderData.data.storeId);
+                    setUserIdFromOrder(orderData.data.userId);
                 } catch (error) {
                     console.error(error);
                 }
@@ -131,12 +140,12 @@ const OrderView = () => {
         }
     }, [id]);
 
-    // Función para buscar producto por SKU
+    // Función para rechazar la orden
     const handleOrderReject = async (e) => {
         e.preventDefault();
         setProductLoading(true);
         try {
-            const order = await fetchOrderStatusUpdate('REJECTED',rejectionReason);
+            await fetchOrderStatusUpdate('REJECTED', rejectionReason);
             showSuccessMessage('Orden rechazada exitosamente');
             await sleep(3000);
             navigate('../tables/orders');
@@ -186,12 +195,13 @@ const OrderView = () => {
         setTotalOrder(newTotalOrder);
     };
 
+    // Función para aprobar la orden
     const handleSubmit = async (e) => {
         e.preventDefault();
 
         try {
-            const url =  `http://35.237.124.228/api/v1/orders/${id}/status`
-            const method =  'PUT' ;
+            const url = `http://35.237.124.228/api/v1/orders/${id}/status`
+            const method = 'PUT';
 
             const response = await fetch(url, {
                 method: method,
@@ -199,7 +209,7 @@ const OrderView = () => {
                     'Content-Type': 'application/json',
                     Authorization: `Bearer ${authToken}`,
                 },
-                body: JSON.stringify({orderStatus:'REQUESTED'}),
+                body: JSON.stringify({ orderStatus: 'REQUESTED' }),
             });
 
             if (!response.ok) {
@@ -214,8 +224,8 @@ const OrderView = () => {
             const result = await response.json();
             console.log(result);
 
-            // Mensaje de éxito según la operación
-            showSuccessMessage(id ? 'Orden Aprobada exitosamente' : 'Orden aprobada exitosamente');
+            // Mensaje de éxito
+            showSuccessMessage('Orden aprobada exitosamente');
             await sleep(3000);
 
             // Redirigir o limpiar el formulario según sea necesario
@@ -223,9 +233,75 @@ const OrderView = () => {
         } catch (error) {
             console.error('Error:', error);
             showErrorMessage(
-                id
-                    ? 'Error al aprobar la orden. Por favor, intenta de nuevo.'
-                    : 'Error al crear la orden. Por favor, intenta de nuevo.'
+                'Error al aprobar la orden. Por favor, intenta de nuevo.'
+            );
+        }
+    };
+
+    // Función para crear el envío
+    const handleSubmitShipment = async (e) => {
+        e.preventDefault();
+
+        try {
+            const url = `http://35.237.124.228/api/v1/shipments`;
+            const method = 'POST';
+
+            // Preparar los detalles del envío
+            const shipmentDetails = orderDetails.map((item) => ({
+                shipmentDetailId: null, // Puedes dejarlo como null si es opcional
+                productId: item.productId,
+                quantityShipped: item.quantityRequested,
+            }));
+
+            // Formatear departureDate si es necesario
+            let formattedDepartureDate = departureDate;
+            if (departureDate.length === 16) { // Si falta segundos
+                formattedDepartureDate = departureDate + ':00';
+            }
+
+            // Preparar el cuerpo de la petición
+            const requestBody = {
+                orderId: id,
+                storeId: storeIdFromOrder,
+                userId: userIdFromOrder,
+                departureDate: formattedDepartureDate,
+                totalShipment: totalOrder,
+                createShipmentDetailDto: shipmentDetails,
+            };
+
+            console.log('Request Body:', requestBody); // Para depuración
+
+            const response = await fetch(url, {
+                method: method,
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${authToken}`,
+                },
+                body: JSON.stringify(requestBody),
+            });
+
+            if (!response.ok) {
+                console.error(response);
+                if (response.status === 401) {
+                    window.sessionStorage.removeItem('authToken');
+                    window.location.href = '/';
+                }
+                throw new Error('Network response was not ok');
+            }
+
+            const result = await response.json();
+            console.log(result);
+
+            // Mensaje de éxito
+            showSuccessMessage('Envío creado exitosamente');
+            await sleep(3000);
+
+            // Redirigir o limpiar el formulario según sea necesario
+            navigate('../tables/orders'); // Por ejemplo, redirigir a la lista de órdenes
+        } catch (error) {
+            console.error('Error:', error);
+            showErrorMessage(
+                'Error al crear el envío. Por favor, intenta de nuevo.'
             );
         }
     };
@@ -244,7 +320,7 @@ const OrderView = () => {
 
     return (
         <DefaultLayout>
-            <Breadcrumb pageName={id ? 'Aprobar o Rechazar Orden' : 'Crear Orden'} />
+            <Breadcrumb pageName={rol === 'SUPERVISOR' ? 'Aprobar o Rechazar Orden' : 'Ver Envío'} />
 
             <div className="flex justify-between">
                 {/* Sección Izquierda */}
@@ -253,14 +329,14 @@ const OrderView = () => {
                     <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark mb-6">
                         <div className="border-b border-stroke py-4 px-6.5 dark:border-strokedark">
                             <h3 className="font-medium text-black dark:text-white">
-                                {id ? 'Aprobar Orden' : 'Crear Orden'}
+                                {rol === 'SUPERVISOR' ? 'Aprobar Orden' : 'Realizar Envío'}
                             </h3>
                         </div>
-                        <form onSubmit={handleSubmit}>
+                        <form onSubmit={rol === 'SUPERVISOR' ? handleSubmit : handleSubmitShipment}>
                             <div className="p-6.5">
                                 <div className="mb-4.5">
                                     <label className="mb-2.5 block text-black dark:text-white">
-                                        Total Orden <span className="text-meta-1">*</span>
+                                        Total Envío <span className="text-meta-1">*</span>
                                     </label>
                                     <input
                                         type="number"
@@ -270,50 +346,69 @@ const OrderView = () => {
                                         className="w-full rounded border-[1.5px] border-stroke bg-gray-100 py-3 px-5 text-black outline-none transition focus:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white"
                                     />
                                 </div>
+                                {rol === 'WAREHOUSE' && (
+                                    <div className="mb-4.5">
+                                        <label className="mb-2.5 block text-black dark:text-white">
+                                            Fecha de salida
+                                        </label>
+                                        <input
+                                            required
+                                            value={departureDate}
+                                            type="datetime-local" // Cambiado a datetime-local
+                                            onChange={(e) => setDepartureDate(e.target.value)}
+                                            className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                                        />
+                                    </div>
+                                )}
+{(rol === 'WAREHOUSE' || rol === 'SUPERVISOR') && (
+     <button
+     type="submit"
+     className="flex w-full justify-center rounded bg-green-600 p-3 font-medium text-white hover:bg-opacity-90"
+ >
+     {rol === 'SUPERVISOR' ? 'Aprobar Orden' : 'Crear Envío'}
+ </button>
+)}
 
-                                <button
-                                    type="submit"
-                                    className="flex w-full justify-center rounded bg-green-600 p-3 font-medium text-gray hover:bg-opacity-90"
-                                >
-                                    {id ? 'Aprobar Orden' : 'Crear Orden'}
-                                </button>
                             </div>
                         </form>
                     </div>
 
-                    {/* Caja para buscar SKU */}
-                    <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
-                        <div className="border-b border-stroke py-4 px-6.5 dark:border-strokedark">
-                            <h3 className="font-medium text-black dark:text-white">
-                                Rechazar Orden
-                            </h3>
-                        </div>
-                        <form onSubmit={handleOrderReject}>
-                            <div className="p-6.5">
-                                <div className="mb-4.5">
-                                    <label className="mb-2.5 block text-black dark:text-white">
-                                        Motivo de Rechazo <span className="text-meta-1">*</span>
-                                    </label>
-                                    <input
-                                        type="text"
-                                        value={rejectionReason}
-                                        onChange={(e) => setRejectionReason(e.target.value)}
-                                        required
-                                        placeholder="Ingrese el motivo del rechazo"
-                                        className="w-full rounded border-[1.5px] border-stroke py-3 px-5 text-black outline-none transition focus:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white"
-                                    />
+                    {/* Caja para rechazar orden */}
+                    {rol === 'SUPERVISOR' && (
+                        <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
+                            <div className="border-b border-stroke py-4 px-6.5 dark:border-strokedark">
+                                <h3 className="font-medium text-black dark:text-white">
+                                    Rechazar Orden
+                                </h3>
+                            </div>
+                            <form onSubmit={handleOrderReject}>
+                                <div className="p-6.5">
+                                    <div className="mb-4.5">
+                                        <label className="mb-2.5 block text-black dark:text-white">
+                                            Motivo de Rechazo <span className="text-meta-1">*</span>
+                                        </label>
+                                        <input
+                                            type="text"
+                                            value={rejectionReason}
+                                            onChange={(e) => setRejectionReason(e.target.value)}
+                                            required
+                                            placeholder="Ingrese el motivo del rechazo"
+                                            className="w-full rounded border-[1.5px] border-stroke py-3 px-5 text-black outline-none transition focus:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white"
+                                        />
+                                    </div>
+
+                                    <button
+                                        type="submit"
+                                        className="flex w-full justify-center rounded bg-red-600 p-3 font-medium text-white hover:bg-opacity-90"
+                                        disabled={productLoading}
+                                    >
+                                        {productLoading ? 'Rechazando...' : 'Rechazar Orden'}
+                                    </button>
                                 </div>
+                            </form>
+                        </div>
+                    )}
 
-                                <button
-                                    type="submit"
-                                    className="flex w-full justify-center rounded bg-red-600 p-3 font-medium text-gray hover:bg-opacity-90"
-                                    disabled={productLoading}
-                                >
-                                    {productLoading ? 'Rechazando...' : 'Rechazar Orden'}
-                                </button>
-                            </div>
-                        </form>
-                    </div>
                 </div>
 
                 {/* Sección Derecha */}

@@ -1,4 +1,6 @@
-import React, { useState, useEffect } from 'react';
+// StoreTable.tsx
+
+import React, { useState, useEffect, useRef } from 'react';
 import { FaEye, FaEdit, FaTrash } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 
@@ -6,8 +8,34 @@ interface DataItem {
   [key: string]: any;
 }
 
-const fetchData = async (endpoint: string, token: string) => {
-  const response = await fetch(endpoint, {
+const fetchData = async (
+  endpoint: string,
+  token: string,
+  searchTerm?: string,
+  pageParam?: number,
+  sizeParam?: number
+) => {
+  let url = endpoint;
+  const urlParams = [];
+
+  if (searchTerm && searchTerm.trim() !== '') {
+    urlParams.push(`filter=${encodeURIComponent(searchTerm)}`);
+  }
+
+  if (typeof pageParam === 'number') {
+    urlParams.push(`page=${pageParam}`);
+  }
+
+  if (typeof sizeParam === 'number') {
+    urlParams.push(`size=${sizeParam}`);
+  }
+
+  if (urlParams.length > 0) {
+    const separator = endpoint.includes('?') ? '&' : '?';
+    url = `${endpoint}${separator}${urlParams.join('&')}`;
+  }
+
+  const response = await fetch(url, {
     method: 'GET',
     headers: {
       Authorization: `Bearer ${token}`,
@@ -39,7 +67,6 @@ const StoreTable: React.FC<TableCustomProps> = ({
   urlKey,
 }) => {
   const [data, setData] = useState<DataItem[]>([]);
-  const [filteredData, setFilteredData] = useState<DataItem[]>([]);
   const [page, setPage] = useState(0);
   const [size] = useState(10);
   const [totalPages, setTotalPages] = useState(1);
@@ -50,32 +77,37 @@ const StoreTable: React.FC<TableCustomProps> = ({
 
   const token = window.sessionStorage.getItem('authToken');
 
+  const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const loadData = async () => {
+    if (token) {
+      const result = await fetchData(endpoint, token, searchTerm, page, size);
+      const content = result.data.content ? result.data.content : result.data;
+      setData(content);
+      setTotalPages(result.totalPages || 1);
+    }
+  };
+
   useEffect(() => {
-    const loadData = async () => {
-      if (token) {
-        const result = await fetchData(endpoint, token);
-        setData(result.data);
-        setFilteredData(result.data);
-        setTotalPages(Math.ceil(result.data.length / size));
+    loadData();
+  }, [endpoint, token, size, page]);
+
+  useEffect(() => {
+    if (debounceTimeoutRef.current) {
+      clearTimeout(debounceTimeoutRef.current);
+    }
+
+    debounceTimeoutRef.current = setTimeout(() => {
+      setPage(0);
+      loadData();
+    }, 300);
+
+    return () => {
+      if (debounceTimeoutRef.current) {
+        clearTimeout(debounceTimeoutRef.current);
       }
     };
-
-    loadData();
-  }, [endpoint, token, size]);
-
-  useEffect(() => {
-    const filtered = data.filter((item) =>
-      Object.values(item).some(
-        (value) =>
-          typeof value === 'string' &&
-          value.toLowerCase().includes(searchTerm.toLowerCase()),
-      ),
-    );
-
-    setFilteredData(filtered);
-    setTotalPages(Math.ceil(filtered.length / size));
-    setPage(0);
-  }, [searchTerm, data, size]);
+  }, [searchTerm]);
 
   const handleDelete = async (id: string) => {
     if (token) {
@@ -92,8 +124,8 @@ const StoreTable: React.FC<TableCustomProps> = ({
     navigate(`/forms/reservation-creation/${item[urlKey]}`);
   };
 
-  const paginatedData = filteredData.slice(page * size, (page + 1) * size);
-  console.log(paginatedData);
+  const displayedData = data;
+
   return (
     <div style={{ overflowX: 'auto' }}>
       <div className="flex my-4 items-start max-w-sm">
@@ -109,9 +141,9 @@ const StoreTable: React.FC<TableCustomProps> = ({
             >
               <path
                 stroke="currentColor"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
                 d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
               />
             </svg>
@@ -129,17 +161,16 @@ const StoreTable: React.FC<TableCustomProps> = ({
 
       <div className="flex ">
         <div className="grid gap-6 grid-cols-1 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-7">
-          {paginatedData.map((book) => (
+          {displayedData.map((book) => (
             <div
               key={book[urlKey]}
               className="bg-white dark:bg-[#24303F] w-46 rounded-md"
             >
-
               <img
                 className="w-full h-72 object-cover rounded-t-md"
                 src={
                   (book.urlImage?.startsWith('http') ||
-                  book.urlImage?.startsWith('https')) &&
+                    book.urlImage?.startsWith('https')) &&
                   !book.urlImage?.startsWith('https://example.com')
                     ? book.urlImage
                     : defaultImage
@@ -151,9 +182,19 @@ const StoreTable: React.FC<TableCustomProps> = ({
                 <h1 className="text-[#1D2A39] dark:text-white font-bold">
                   {book.title}
                 </h1>
-                <div className='flex justify-between items-center'>
+                <div className="flex justify-between items-center">
                   <h2 className="text-sm text-blue-500">{book.name}</h2>
-                  <h2 className={`text-sm ${book.storeType === 'NORMAL' ? 'text-green-500' : 'text-red-500'} px-4`}>{book.storeType === 'NORMAL' ? 'Tipo: '+book.storeType : book.storeType}</h2>
+                  <h2
+                    className={`text-sm ${
+                      book.storeType === 'NORMAL'
+                        ? 'text-green-500'
+                        : 'text-red-500'
+                    } px-4`}
+                  >
+                    {book.storeType === 'NORMAL'
+                      ? 'Tipo: ' + book.storeType
+                      : book.storeType}
+                  </h2>
                 </div>
                 <div className="flex flex-row justify-between items-center">
                   <div className="flex">
@@ -206,7 +247,7 @@ const StoreTable: React.FC<TableCustomProps> = ({
         </span>
         <button
           onClick={() => setPage(page + 1)}
-          disabled={page + 1 === totalPages}
+          disabled={page + 1 >= totalPages}
         >
           Next
         </button>
