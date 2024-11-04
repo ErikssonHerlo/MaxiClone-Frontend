@@ -152,7 +152,7 @@ const CatalogStoreTable: React.FC<TableCustomProps> = ({
   };
 
   const handleResevation = (item: DataItem) => {
-    navigate(`/forms/reservation-creation/${item[urlKey]}`);
+    navigate(`/forms/create-order`);
   };
 
   const displayedData = data;

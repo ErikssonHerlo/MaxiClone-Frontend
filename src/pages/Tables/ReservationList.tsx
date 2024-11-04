@@ -13,7 +13,7 @@ const OrderList = () => {
   ];
   const storeIds = localStorage.getItem('StoreIds');
   const rol = localStorage.getItem('Role');
-  const filter = (rol === 'WAREHOUSE' ? "status=REQUESTED":(rol === 'SUPERVISOR'?"status=PENDING":null));
+  const filter = (rol === 'WAREHOUSE' ? "status=REQUESTED"+"&sort=id,desc":(rol === 'SUPERVISOR'?"status=PENDING"+"&sort=id,desc":null+"&sort=id,desc"));
   return (
     <DefaultLayout>
       <Breadcrumb pageName="Listado de Ordenes" />

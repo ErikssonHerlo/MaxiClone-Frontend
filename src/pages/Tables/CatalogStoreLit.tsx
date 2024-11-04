@@ -12,7 +12,7 @@ const CatalogStore = () => {
       <Breadcrumb pageName="Catalogo de Tienda" />
       <div className="flex flex-col gap-10">
       <CatalogStoreTable
-        endpoint={`http://35.237.124.228/api/v1/catalog/products/store/`}
+        endpoint={`http://35.237.124.228/api/v1/catalog/products/store`}
         module="book-creation"
         urlKey="sku"
     />

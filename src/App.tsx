@@ -45,6 +45,9 @@ import ReportTop5StoresOrdersTimeStatus from './pages/Form/ReportTop5StoresOrder
 import ReportTop5UsersOrdersTime from './pages/Form/ReportTop5UsersOrdersTime';
 import ReportTop5ProductsOrdersTime from './pages/Form/ReportTop5ProductsOrdersTime';
 import ReportTop5UsersShipmentsTime from './pages/Form/ReportTop5UsersShipmentsTime';
+import IncidentCreation from './pages/Form/IncidentCreation';
+import IncidentsList from './pages/Tables/IncidentsList';
+import IncidentView from './pages/Form/IncidentView';
 
 function App() {
   const [loading, setLoading] = useState<boolean>(true);
@@ -229,7 +232,7 @@ function App() {
           path="/forms/book-creation/:id?"
           element={
             <>
-              <PageTitle title="Creacion de libro" />
+              <PageTitle title="Creacion de Porducto" />
               <BookCreation />
             </>
           }
@@ -404,6 +407,26 @@ function App() {
           }
         />
 
+<Route
+          path="/forms/shipment-creation/:id?/incident"
+          element={
+            <>
+              <PageTitle title="Crear Incidencia" />
+              <IncidentCreation />
+            </>
+          }
+        />
+
+<Route
+          path="/forms/incident-creation/:id?/view"
+          element={
+            <>
+              <PageTitle title="Ver Incidencia" />
+              <IncidentView />
+            </>
+          }
+        />
+
         <Route
           path="/tables/carreers"
           element={
@@ -469,6 +492,15 @@ function App() {
             <>
               <PageTitle title="Lista de Envios" />
               <ShipmentsList />
+            </>
+          }
+        />
+    <Route
+          path="/tables/incidents"
+          element={
+            <>
+              <PageTitle title="Lista de Incidentes" />
+              <IncidentsList />
             </>
           }
         />

@@ -25,6 +25,7 @@ const ShipmentsList = () => {
           columns={columns}
           module="shipment-creation"
           urlKey="id"
+          filters='sort=id,desc'
         />
       </div>
     </DefaultLayout>

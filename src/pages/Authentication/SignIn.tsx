@@ -1,9 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import LoginLayout from '../../layout/LoginLayout';
-import Logo from '../../images/logo/usac-logo.png';
-import LogoDark from '../../images/logo/usac-logo.webp';
-import Library from '../../images/product/library.webp';
 import LoginDarkModeSwitcher from '../../components/Header/DarkModeSwitcher';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -100,15 +97,14 @@ const SignIn: React.FC = () => {
           <div className="hidden w-full xl:block xl:w-1/2">
             <div className="py-17.5 px-26 text-center">
               <Link className="mb-5.5 inline-block" to="/">
-                <img className="w-96 hidden dark:block" src={Logo} alt="Logo" />
-                <img className="w-96 dark:hidden" src={LogoDark} alt="Logo" />
+                <img className="w-36 hidden dark:block" src='https://storage.googleapis.com/maxi-clone-images/logo-removebg-preview.png' alt="Logo" />
+                <img className="w-36 dark:hidden" src='https://storage.googleapis.com/maxi-clone-images/logo-removebg-preview.png' alt="Logo" />
               </Link>
               <p className="2xl:px-20">
-                Explora el gusto por el conocimiento: ¡Id y enseñad a todos en
-                la Biblioteca Universitaria del CUNOC!
+                Explora miles de productos de diferentes categorías y encuentra lo que necesitas!
               </p>
               <span className="mt-15 inline-block">
-                <img className="w-72" src={Library} alt="Logo" />
+                <img className="w-92" src='https://storage.googleapis.com/maxi-clone-images/undraw_undraw_undraw_undraw_undraw_undraw_undraw_shopping_bags_2ude_-1-_mnw3_-2-_q7y0_muk6_-2-_l1mh_-2-_m4xj_wqq4-1-removebg-preview.png' alt="Logo" />
               </span>
             </div>
           </div>
@@ -122,7 +118,7 @@ const SignIn: React.FC = () => {
               <form onSubmit={handleSubmit}>
                 <div className="mb-4">
                   <label className="mb-2.5 block font-medium text-black dark:text-white">
-                    Usuario
+                    Email
                   </label>
                   <div className="relative">
                     <input

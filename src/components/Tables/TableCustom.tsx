@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { CompactTable } from '@table-library/react-table-library/compact';
 import { useTheme } from '@table-library/react-table-library/theme';
-import { FaEye, FaEdit, FaTrash } from 'react-icons/fa';
+import { FaEye, FaEdit, FaTrash, FaWhmcs } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 
 interface DataItem {
@@ -180,6 +180,10 @@ const TableCustom: React.FC<TableCustomProps> = ({
     navigate(`/forms/${module}/${item[urlKey]}/view`);
   };
 
+  const handleIncident = (item: DataItem) => {
+    navigate(`/forms/${module}/${item[urlKey]}/incident`);
+  };
+
   const displayedData = data;
 
   const fixedColumns = [
@@ -188,19 +192,25 @@ const TableCustom: React.FC<TableCustomProps> = ({
       label: 'Actions',
       renderCell: (item: DataItem) => (
         <div className="flex flex-row items-center">
+            {(module === 'shipment-creation' && rol === 'STORE') && (
+                <FaWhmcs
+                onClick={() => handleIncident(item)}
+                style={{ cursor: 'pointer', marginRight: '10px' }}
+                />
+            )}
           {(module !== 'shipment-creation' && (rol === 'SUPERVISOR' || rol === 'WAREHOUSE')) && (
             <FaEye
               onClick={() => handleView(item)}
               style={{ cursor: 'pointer', marginRight: '10px' }}
             />
           )}
-          {(module === 'shipment-creation' && (rol === 'STORE' || rol === 'ADMINISTRATOR')) && (
+          {(module === 'shipment-creation' || module === 'incident-creation' && (rol === 'STORE' || rol === 'ADMINISTRATOR')) && (
             <FaEye
               onClick={() => handleView(item)}
               style={{ cursor: 'pointer', marginRight: '10px' }}
             />
           )}
-          {(module !== 'shipment-creation' && rol !== 'SUPERVISOR' && rol !== 'WAREHOUSE' && rol !== 'ADMINISTRATOR') && (
+          {(module !== 'shipment-creation'&& module !== 'incident-creation' && rol !== 'SUPERVISOR' && rol !== 'WAREHOUSE' && rol !== 'ADMINISTRATOR') && (
             <FaEye
               onClick={() => handleEdit(item)}
               style={{ cursor: 'pointer', marginRight: '10px' }}
@@ -212,16 +222,10 @@ const TableCustom: React.FC<TableCustomProps> = ({
               style={{ cursor: 'pointer', marginRight: '10px' }}
             />
           )}
-          {(module !== 'shipment-creation' && module !== 'reservation-creation' && rol !== 'SUPERVISOR' && rol !== 'WAREHOUSE') && (
+          {(module !== 'shipment-creation'&& module !== 'incident-creation'&& module !== 'reservation-creation' && rol !== 'SUPERVISOR' && rol !== 'WAREHOUSE') && (
             <FaEdit
               onClick={() => handleEdit(item)}
               style={{ cursor: 'pointer', marginRight: '10px' }}
-            />
-          )}
-          {module !== 'shipment-creation' && module !== 'create-order' && (
-            <FaTrash
-              onClick={() => handleDelete(item[urlKey])}
-              style={{ cursor: 'pointer' }}
             />
           )}
         </div>

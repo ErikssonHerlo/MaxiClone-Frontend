@@ -87,12 +87,12 @@ const BookCreation = () => {
             const result = await response.json();
             console.log(result);
             showSuccessMessage(
-                id ? 'Libro actualizado exitosamente' : 'Libro creado exitosamente',
+                id ? 'Producto actualizado exitosamente' : 'Producto creado exitosamente',
             );
         } catch (error) {
             console.error('Error:', error);
             showErrorMessage(
-                'Error al registrar o actualizar el libro. Por favor, verifica los datos e intenta de nuevo.',
+                'Error al registrar o actualizar el Producto. Por favor, verifica los datos e intenta de nuevo.',
             );
         }
     };

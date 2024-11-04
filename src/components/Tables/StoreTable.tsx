@@ -212,14 +212,6 @@ const StoreTable: React.FC<TableCustomProps> = ({
                     />
                   </div>
                   <div className="flex px-4 py-2">
-                    {book.status !== 'available' && (
-                      <button
-                        className="bg-[#3C50E0] text-white px-2 py-1 rounded-md text-sm"
-                        onClick={() => handleResevation(book)}
-                      >
-                        Reservar
-                      </button>
-                    )}
                     {book.status === 'available' && (
                       <button
                         className="bg-[#3C50E0] text-white px-2 py-1 rounded-md text-sm"

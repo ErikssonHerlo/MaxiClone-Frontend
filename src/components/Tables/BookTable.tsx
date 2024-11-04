@@ -141,7 +141,7 @@ const BookTable: React.FC<TableCustomProps> = ({
   };
 
   const handleResevation = (item: DataItem) => {
-    navigate(`/forms/reservation-creation/${item[urlKey]}`);
+    navigate(`/forms/create-order`);
   };
 
   const displayedData = data;
@@ -233,7 +233,7 @@ const BookTable: React.FC<TableCustomProps> = ({
                   )}
 
                   <div className="flex px-4 py-2">
-                    {book.status !== 'available' && (
+                    {rol === 'STORE' && (
                       <button
                         className="bg-[#3C50E0] text-white px-2 py-1 rounded-md text-sm"
                         onClick={() => handleResevation(book)}
