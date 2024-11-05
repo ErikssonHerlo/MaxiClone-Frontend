@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import Breadcrumb from '../../components/Breadcrumbs/Breadcrumb';
 import DefaultLayout from '../../layout/DefaultLayout';
 import { ToastContainer, toast } from 'react-toastify';
+import { sleep } from '../../common/utils';
 
 const UserCreation = () => {
     const navigate = useNavigate();
@@ -23,7 +24,7 @@ const UserCreation = () => {
         const fetchCareers = async () => {
             try {
                 const response = await fetch(
-                    `http://35.237.124.228/api/v1/stores`,
+                    `http://35.237.124.228/api/v1/stores?size=100`,
                     {
                         method: 'GET',
                         headers: {
@@ -125,6 +126,8 @@ const UserCreation = () => {
                     ? 'Usuario actualizado exitosamente'
                     : 'Usuario registrado exitosamente',
             );
+            await sleep(3000);
+            navigate('/tables/users');
         } catch (error) {
             console.error('Error:', error);
             showErrorMessage(

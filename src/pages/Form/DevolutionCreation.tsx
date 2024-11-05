@@ -7,7 +7,7 @@ import { sleep } from '../../common/utils';
 
 const DEFAULT_IMAGE_URL = "https://as2.ftcdn.net/v2/jpg/04/99/93/31/1000_F_499933117_ZAUBfv3P1HEOsZDrnkbNCt4jc3AodArl.jpg";
 
-const IncidentCreation = () => {
+const DevolutionCreation = () => {
     const rol = localStorage.getItem('Role');
     const navigate = useNavigate();
     const { id } = useParams();
@@ -22,6 +22,7 @@ const IncidentCreation = () => {
     const [productsWithIncidents, setProductsWithIncidents] = useState([]);
     const [reasonInputs, setReasonInputs] = useState({});
     const [showReasonInputs, setShowReasonInputs] = useState({});
+    const [damagedStatus, setDamagedStatus] = useState({});
 
     const authToken = sessionStorage.getItem('authToken');
     if (!authToken) {
@@ -80,7 +81,6 @@ const IncidentCreation = () => {
     };
 
     useEffect(() => {
-        // Cargar datos del envío
         if (id) {
             const fetchShipment = async () => {
                 try {
@@ -108,14 +108,13 @@ const IncidentCreation = () => {
                             const productData = await fetchProductDetails(detail.productId);
                             return {
                                 ...detail,
-                                productData, // Agregar datos del producto
+                                productData,
                             };
                         })
                     );
                     setShipmentDetails(detailsWithImages);
                     setShipmentStatus(shipmentData.data.shipmentStatus);
                     setTotalShipment(shipmentData.data.totalShipment);
-                    // Almacenar storeId y userId
                     setStoreIdFromOrder(shipmentData.data.storeId);
                     setUserIdFromOrder(getUserInfo().email);
                 } catch (error) {
@@ -126,7 +125,6 @@ const IncidentCreation = () => {
         }
     }, [id]);
 
-    // Función para agregar incidencia
     const handleAddIncidentClick = (productId) => {
         setShowReasonInputs((prev) => ({
             ...prev,
@@ -145,18 +143,16 @@ const IncidentCreation = () => {
         if (e.key === 'Enter') {
             const reason = reasonInputs[item.productId];
             if (reason && reason.trim() !== '') {
-                // Agregar el producto a la lista de incidencias
                 setProductsWithIncidents((prev) => [
                     ...prev,
                     {
                         productId: item.productId,
                         productData: item.productData,
-                        affectedQuantity: item.quantityShipped, // Valor por defecto
+                        affectedQuantity: item.quantityShipped,
                         reason: reason.trim(),
                         maxQuantity: item.quantityShipped,
                     },
                 ]);
-                // Ocultar el input y limpiar
                 setShowReasonInputs((prev) => ({
                     ...prev,
                     [item.productId]: false,
@@ -192,8 +188,14 @@ const IncidentCreation = () => {
         );
     };
 
+    const handleDamagedToggle = (productId) => {
+        setDamagedStatus((prev) => ({
+            ...prev,
+            [productId]: !prev[productId],
+        }));
+    };
+
     const handleCreateIncident = async () => {
-        // Preparar el payload
         const payload = {
             shipmentId: id,
             storeId: storeIdFromOrder,
@@ -204,11 +206,14 @@ const IncidentCreation = () => {
                 productSku: item.productId,
                 affectedQuantity: item.affectedQuantity,
                 reason: item.reason,
+                isDamaged: damagedStatus[item.productId] || false,
+                unitCost: item.productData.cost,
+                totalCost: item.productData.cost * item.affectedQuantity,
             })),
         };
 
         try {
-            const response = await fetch('http://35.237.124.228/api/v1/incidents', {
+            const response = await fetch('http://35.237.124.228/api/v1/devolutions', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -224,17 +229,12 @@ const IncidentCreation = () => {
                 throw new Error('Network response was not ok');
             }
             const result = await response.json();
-            console.log(result);
-
-            // Mostrar mensaje de éxito
-            showSuccessMessage('Incidente creado exitosamente');
+            showSuccessMessage('Devolucion creada exitosamente');
             await sleep(3000);
-
-            // Redirigir o actualizar la vista según sea necesario
-            navigate('../tables/shipments'); // Por ejemplo, redirigir a la lista de incidentes
+            navigate('../tables/shipments');
         } catch (error) {
             console.error('Error:', error);
-            showErrorMessage('Error al crear el incidente. Por favor, intenta de nuevo.');
+            showErrorMessage('Error al crear la devolucion. Por favor, intenta de nuevo.');
         }
     };
 
@@ -256,16 +256,14 @@ const IncidentCreation = () => {
 
     return (
         <DefaultLayout>
-            <Breadcrumb pageName={'Crear Incidente'} />
+            <Breadcrumb pageName={'Crear Devolucion'} />
 
             <div className="flex justify-between">
-                {/* Sección Izquierda */}
                 <div className="w-1/2 pr-4">
-                    {/* Caja para mostrar productos con incidencias */}
                     <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark h-full overflow-y-auto">
                         <div className="border-b border-stroke py-4 px-6.5 dark:border-strokedark">
                             <h3 className="font-medium text-black dark:text-white">
-                                Productos con Incidencias
+                                Productos para devolucion
                             </h3>
                         </div>
                         <div className="p-6.5">
@@ -312,6 +310,16 @@ const IncidentCreation = () => {
                                                     className="w-20 rounded border-[1.5px] border-stroke py-1 px-2 text-black outline-none transition focus:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white"
                                                 />
                                             </div>
+                                            <div className="flex items-center mt-2">
+                                                <label className="mr-2 text-black dark:text-white">
+                                                    Producto dañado:
+                                                </label>
+                                                <input
+                                                    type="checkbox"
+                                                    checked={damagedStatus[item.productId] || false}
+                                                    onChange={() => handleDamagedToggle(item.productId)}
+                                                />
+                                            </div>
                                         </div>
                                         <button
                                             onClick={() => handleRemoveIncident(item.productId)}
@@ -322,21 +330,17 @@ const IncidentCreation = () => {
                                     </div>
                                 ))
                             )}
-
-                            {/* Botón para crear incidente */}
                             {productsWithIncidents.length > 0 && (
                                 <button
                                     onClick={handleCreateIncident}
                                     className="flex w-full justify-center rounded bg-green-600 p-3 font-medium text-white hover:bg-opacity-90 mt-4"
                                 >
-                                    Crear Incidente
+                                    Crear Devolucion
                                 </button>
                             )}
                         </div>
                     </div>
                 </div>
-
-                {/* Sección Derecha */}
                 <div className="w-1/2 pl-4">
                     <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark h-full overflow-y-auto">
                         <div className="border-b border-stroke py-4 px-6.5 dark:border-strokedark">
@@ -365,6 +369,12 @@ const IncidentCreation = () => {
                                                 {item.productData.name}
                                             </h4>
                                             <p className="text-sm text-gray-500">
+                                                Cost: {item.productData.cost}
+                                            </p>
+                                            <p className="text-sm text-gray-500">
+                                                TotalCost: {item.productData.cost * item.quantityShipped}
+                                            </p>
+                                            <p className="text-sm text-gray-500">
                                                 SKU: {item.productId}
                                             </p>
                                             <div className="flex items-center mt-2">
@@ -383,7 +393,7 @@ const IncidentCreation = () => {
                                                      onClick={() => handleAddIncidentClick(item.productId)}
                                                      className="ml-4 bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
                                                  >
-                                                     Agregar Incidencia
+                                                     Agregar Devolucion
                                                  </button>
                                              )}
                                              {showReasonInputs[item.productId] && (
@@ -417,4 +427,4 @@ const IncidentCreation = () => {
     );
 };
 
-export default IncidentCreation;
+export default DevolutionCreation;

@@ -4,7 +4,7 @@ import Breadcrumb from '../../components/Breadcrumbs/Breadcrumb';
 import DefaultLayout from '../../layout/DefaultLayout';
 import { ToastContainer, toast } from 'react-toastify';
 
-const ReportOrdersTimeStatus = () => {
+const ReportDevolutionsTimeStatusStore = () => {
     const navigate = useNavigate();
     const { id } = useParams();
     const [quantity, setQuantity] = useState<number>(0);
@@ -12,10 +12,11 @@ const ReportOrdersTimeStatus = () => {
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
     const [orderStatus, setOrderStatus] = useState('');
+    const [storeId, setStoreId] = useState(0);
     const authToken = sessionStorage.getItem('authToken');
-    const storeId = localStorage.getItem('StoreId');
+    console.log(storeId);
     if (!authToken) {
-        navigate('/'); // Si no hay token, redirigir al inicio de sesión
+        navigate('/');
     }
 
 
@@ -25,7 +26,7 @@ const ReportOrdersTimeStatus = () => {
 
         try {
             const response = await fetch(
-                `http://35.237.124.228/api/v1/orders/report/timeAndStatus?startDate=${startDate}&endDate=${endDate}&status=${status}`,
+                `http://35.237.124.228/api/v1/devolutions/reports/all-devolutions?storeId=${storeId}&startDate=${startDate}&endDate=${endDate}&status=${status}`,
                 {
                     method: 'GET',
                     headers: {
@@ -47,7 +48,7 @@ const ReportOrdersTimeStatus = () => {
             const result = await response.json();
             console.log(result);
             const reportData = {
-                reportName: "Reporte de ordenes en un intervalo de tiempo y estado",
+                reportName: "Reporte de devoluciones en un intervalo de tiempo y estado",
                 elements: result.data,
             };
             const report = await fetch(
@@ -124,6 +125,18 @@ const ReportOrdersTimeStatus = () => {
                     <form onSubmit={handleSubmit}>
                         <div className="p-6.5">
                         <div className="mb-4.5">
+                                        <label className="mb-2.5 block text-black dark:text-white">
+                                            Id de Tienda
+                                        </label>
+                                        <input
+                                            required
+                                            value={storeId}
+                                            type="number"
+                                            onChange={(e) => setStoreId(Number(e.target.value))}
+                                            className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                                        />
+                                    </div>
+                        <div className="mb-4.5">
                                 <label className="mb-2.5 block text-black dark:text-white">
                                     Estatus de orden <span className="text-meta-1">*</span>
                                 </label>
@@ -135,12 +148,9 @@ const ReportOrdersTimeStatus = () => {
                                     className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                                 >
                                     <option value="">Seleccione el status</option>
+                                    <option value="OPEN">Abierto</option>
+                                    <option value="ACCEPTED">Aceptado</option>
                                     <option value="REJECTED">Rechazado</option>
-                                    <option value="PENDING">Pendiente de Aprobacion</option>
-                                    <option value="REQUESTED">Solicitado</option>
-                                    <option value="SHIPPED">Enviado</option>
-                                    <option value="COMPLETED">Completado</option>
-                                    <option value="CANCELLED">Cancelado</option>
                                 </select>
                             </div>
                         <div className="mb-4.5">
@@ -186,4 +196,4 @@ const ReportOrdersTimeStatus = () => {
     );
 };
 
-export default ReportOrdersTimeStatus;
+export default ReportDevolutionsTimeStatusStore;

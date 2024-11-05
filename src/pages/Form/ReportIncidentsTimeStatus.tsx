@@ -4,7 +4,7 @@ import Breadcrumb from '../../components/Breadcrumbs/Breadcrumb';
 import DefaultLayout from '../../layout/DefaultLayout';
 import { ToastContainer, toast } from 'react-toastify';
 
-const ReportOrdersTimeStatus = () => {
+const ReportIncidentsTimeStatus = () => {
     const navigate = useNavigate();
     const { id } = useParams();
     const [quantity, setQuantity] = useState<number>(0);
@@ -13,9 +13,10 @@ const ReportOrdersTimeStatus = () => {
     const [endDate, setEndDate] = useState('');
     const [orderStatus, setOrderStatus] = useState('');
     const authToken = sessionStorage.getItem('authToken');
-    const storeId = localStorage.getItem('StoreId');
+    const storeId = localStorage.getItem('StoreIds');
+    console.log(storeId);
     if (!authToken) {
-        navigate('/'); // Si no hay token, redirigir al inicio de sesión
+        navigate('/');
     }
 
 
@@ -25,7 +26,7 @@ const ReportOrdersTimeStatus = () => {
 
         try {
             const response = await fetch(
-                `http://35.237.124.228/api/v1/orders/report/timeAndStatus?startDate=${startDate}&endDate=${endDate}&status=${status}`,
+                `http://35.237.124.228/api/v1/incidents/report/getAllIncidents?storeId=${storeId}&startDate=${startDate}&endDate=${endDate}&status=${status}`,
                 {
                     method: 'GET',
                     headers: {
@@ -47,7 +48,7 @@ const ReportOrdersTimeStatus = () => {
             const result = await response.json();
             console.log(result);
             const reportData = {
-                reportName: "Reporte de ordenes en un intervalo de tiempo y estado",
+                reportName: "Reporte de incidentes en un intervalo de tiempo y estado",
                 elements: result.data,
             };
             const report = await fetch(
@@ -135,12 +136,8 @@ const ReportOrdersTimeStatus = () => {
                                     className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                                 >
                                     <option value="">Seleccione el status</option>
-                                    <option value="REJECTED">Rechazado</option>
-                                    <option value="PENDING">Pendiente de Aprobacion</option>
-                                    <option value="REQUESTED">Solicitado</option>
-                                    <option value="SHIPPED">Enviado</option>
-                                    <option value="COMPLETED">Completado</option>
-                                    <option value="CANCELLED">Cancelado</option>
+                                    <option value="OPEN">Abierto</option>
+                                    <option value="CLOSED">Cerrado</option>
                                 </select>
                             </div>
                         <div className="mb-4.5">
@@ -186,4 +183,4 @@ const ReportOrdersTimeStatus = () => {
     );
 };
 
-export default ReportOrdersTimeStatus;
+export default ReportIncidentsTimeStatus;

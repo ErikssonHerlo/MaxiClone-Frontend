@@ -39,7 +39,7 @@ import ShipmentView from './pages/Form/ShipmentView';
 import ReportStoreProduct from './pages/Form/ReportStoreProduct';
 import ReportOrdersTimeStatus from './pages/Form/ReportOrdersTimeStatus';
 import ReportShipmentTime from './pages/Form/ReportShipmentTime';
-import ReportOrdersTimeStatusStore from './pages/Form/ReportOrdersTimeStatusStore';
+
 import ReportShipmentTimeStore from './pages/Form/ReportShipmentTimeStore';
 import ReportTop5StoresOrdersTimeStatus from './pages/Form/ReportTop5StoresOrdersTimeStatus';
 import ReportTop5UsersOrdersTime from './pages/Form/ReportTop5UsersOrdersTime';
@@ -48,6 +48,15 @@ import ReportTop5UsersShipmentsTime from './pages/Form/ReportTop5UsersShipmentsT
 import IncidentCreation from './pages/Form/IncidentCreation';
 import IncidentsList from './pages/Tables/IncidentsList';
 import IncidentView from './pages/Form/IncidentView';
+import ReportIncidentsTimeStatus from './pages/Form/ReportIncidentsTimeStatus';
+import ReportIncidentsTimeStatusStore from './pages/Form/ReportIncidentsTimeStatusStore';
+import DevolutionCreation from './pages/Form/DevolutionCreation';
+import DevolutionsList from './pages/Tables/DevolutionsList';
+import DevolutionView from './pages/Form/DevolutionView';
+import ReportDevolutionsTimeStatus from './pages/Form/ReportDevolutionsTimeStatus';
+import ReportDevolutionsTimeStatusStore from './pages/Form/ReportDevolutionsTimeStatusStore';
+import ReportDamageProductosTimeStore from './pages/Form/ReportDamagedProductsTimeStatusStore';
+import ReportOrdersTimeStatusStore from './pages/Form/ReportOrdersTimeStatusStore';
 
 function App() {
   const [loading, setLoading] = useState<boolean>(true);
@@ -296,6 +305,46 @@ function App() {
         />
 
 <Route
+          path="/forms/reports/incidents-time"
+          element={
+            <>
+              <PageTitle title="Reporte de incidentes por tiempo" />
+              <ReportIncidentsTimeStatus />
+            </>
+          }
+        />
+
+<Route
+          path="/forms/reports/devolutions-time"
+          element={
+            <>
+              <PageTitle title="Reporte de devoluciones por tiempo" />
+              <ReportDevolutionsTimeStatus />
+            </>
+          }
+        />
+
+<Route
+          path="/forms/reports/incidents-time-store"
+          element={
+            <>
+              <PageTitle title="Reporte de incidentes por tiempo y tienda" />
+              <ReportIncidentsTimeStatusStore />
+            </>
+          }
+        />
+
+<Route
+          path="/forms/reports/devolutions-time-store"
+          element={
+            <>
+              <PageTitle title="Reporte de devoluciones por tiempo y tienda" />
+              <ReportDevolutionsTimeStatusStore />
+            </>
+          }
+        />
+
+<Route
           path="/forms/reports/shipment-time"
           element={
             <>
@@ -321,6 +370,16 @@ function App() {
             <>
               <PageTitle title="Reporte de ordenes por tiempo y tienda" />
               <ReportOrdersTimeStatusStore />
+            </>
+          }
+        />
+
+<Route
+          path="/forms/reports/damaged-products-time"
+          element={
+            <>
+              <PageTitle title="Reporte de productos daniados por tiempo y tienda" />
+              <ReportDamageProductosTimeStore />
             </>
           }
         />
@@ -418,11 +477,32 @@ function App() {
         />
 
 <Route
+          path="/forms/shipment-creation/:id?/devolution"
+          element={
+            <>
+              <PageTitle title="Crear Devolucion" />
+              <DevolutionCreation />
+            </>
+          }
+        />
+
+
+<Route
           path="/forms/incident-creation/:id?/view"
           element={
             <>
               <PageTitle title="Ver Incidencia" />
               <IncidentView />
+            </>
+          }
+        />
+
+<Route
+          path="/forms/devolution-creation/:id?/view"
+          element={
+            <>
+              <PageTitle title="Ver Devolucion" />
+              <DevolutionView />
             </>
           }
         />
@@ -501,6 +581,15 @@ function App() {
             <>
               <PageTitle title="Lista de Incidentes" />
               <IncidentsList />
+            </>
+          }
+        />
+          <Route
+          path="/tables/devolutions"
+          element={
+            <>
+              <PageTitle title="Lista de Devoluciones" />
+              <DevolutionsList />
             </>
           }
         />

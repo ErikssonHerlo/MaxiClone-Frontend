@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { CompactTable } from '@table-library/react-table-library/compact';
 import { useTheme } from '@table-library/react-table-library/theme';
-import { FaEye, FaEdit, FaTrash, FaWhmcs } from 'react-icons/fa';
+import { FaEye, FaEdit, FaTrash, FaWhmcs,FaRedoAlt } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 
 interface DataItem {
@@ -184,6 +184,10 @@ const TableCustom: React.FC<TableCustomProps> = ({
     navigate(`/forms/${module}/${item[urlKey]}/incident`);
   };
 
+  const handleDevolution = (item: DataItem) => {
+    navigate(`/forms/${module}/${item[urlKey]}/devolution`);
+  };
+
   const displayedData = data;
 
   const fixedColumns = [
@@ -198,19 +202,25 @@ const TableCustom: React.FC<TableCustomProps> = ({
                 style={{ cursor: 'pointer', marginRight: '10px' }}
                 />
             )}
+            {(module === 'shipment-creation' && rol === 'STORE') && (
+                <FaRedoAlt
+                onClick={() => handleDevolution(item)}
+                style={{ cursor: 'pointer', marginRight: '10px' }}
+                />
+         )}
           {(module !== 'shipment-creation' && (rol === 'SUPERVISOR' || rol === 'WAREHOUSE')) && (
             <FaEye
               onClick={() => handleView(item)}
               style={{ cursor: 'pointer', marginRight: '10px' }}
             />
           )}
-          {(module === 'shipment-creation' || module === 'incident-creation' && (rol === 'STORE' || rol === 'ADMINISTRATOR')) && (
+          {(module === 'shipment-creation' || module === 'incident-creation' ||  module === 'devolution-creation' && (rol === 'STORE' || rol === 'ADMINISTRATOR')) && (
             <FaEye
               onClick={() => handleView(item)}
               style={{ cursor: 'pointer', marginRight: '10px' }}
             />
           )}
-          {(module !== 'shipment-creation'&& module !== 'incident-creation' && rol !== 'SUPERVISOR' && rol !== 'WAREHOUSE' && rol !== 'ADMINISTRATOR') && (
+          {(module !== 'shipment-creation'&& module !== 'incident-creation' && module !== 'devolution-creation' && rol !== 'SUPERVISOR' && rol !== 'WAREHOUSE' && rol !== 'ADMINISTRATOR') && (
             <FaEye
               onClick={() => handleEdit(item)}
               style={{ cursor: 'pointer', marginRight: '10px' }}
@@ -222,7 +232,7 @@ const TableCustom: React.FC<TableCustomProps> = ({
               style={{ cursor: 'pointer', marginRight: '10px' }}
             />
           )}
-          {(module !== 'shipment-creation'&& module !== 'incident-creation'&& module !== 'reservation-creation' && rol !== 'SUPERVISOR' && rol !== 'WAREHOUSE') && (
+          {(module !== 'shipment-creation'&& module !== 'incident-creation' && module !== 'devolution-creation' && module !== 'reservation-creation' && rol !== 'SUPERVISOR' && rol !== 'WAREHOUSE') && (
             <FaEdit
               onClick={() => handleEdit(item)}
               style={{ cursor: 'pointer', marginRight: '10px' }}

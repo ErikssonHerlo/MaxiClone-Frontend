@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import Breadcrumb from '../../components/Breadcrumbs/Breadcrumb';
 import DefaultLayout from '../../layout/DefaultLayout';
 import { ToastContainer, toast } from 'react-toastify';
+import { sleep } from '../../common/utils';
 
 const BookCreation = () => {
     const { id } = useParams();
@@ -89,6 +90,8 @@ const BookCreation = () => {
             showSuccessMessage(
                 id ? 'Producto actualizado exitosamente' : 'Producto creado exitosamente',
             );
+            await sleep(3000);
+            navigate('/'+rol.toLowerCase()+'-dashboard');
         } catch (error) {
             console.error('Error:', error);
             showErrorMessage(

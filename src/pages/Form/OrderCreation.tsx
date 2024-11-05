@@ -12,6 +12,7 @@ const OrderCreation = () => {
     const { id } = useParams();
     const [totalOrder, setTotalOrder] = useState(0);
     const [orderStatus, setOrderStatus] = useState('');
+    const [orderRejectionReason, setOrderRejectionReason] = useState('');
     const [role, setRoleCode] = useState('');
     const [skuInput, setSkuInput] = useState('');
     const [orderDetails, setOrderDetails] = useState([]);
@@ -24,7 +25,7 @@ const OrderCreation = () => {
     }
 
     // Función para verificar si el estado de la orden permite edición
-    const isEditableStatus = ['REQUESTED', 'REJECTED', 'PENDING'].includes(orderStatus) || !id; // Si no hay id (creación), es editable
+    const isEditableStatus = [ 'REJECTED', 'PENDING'].includes(orderStatus) || !id; // Si no hay id (creación), es editable
 
     // Función para buscar los detalles de un producto por SKU (productId)
     const fetchProductDetails = async (productId) => {
@@ -98,6 +99,7 @@ const OrderCreation = () => {
                             };
                         })
                     );
+                    setOrderRejectionReason(orderData.data.rejectionReason);
                     setOrderDetails(detailsWithImages);
                     setOrderStatus(orderData.data.orderStatus);
                     setTotalOrder(orderData.data.totalOrder);
@@ -292,15 +294,22 @@ const OrderCreation = () => {
             <Breadcrumb pageName={id ? 'Actualizar Orden' : 'Crear Orden'} />
 
             <div className="flex justify-between">
+
                 {/* Sección Izquierda */}
                 <div className="w-1/2 pr-4">
+                {orderStatus === 'REJECTED' && (
+                            <p>Motivo del rechazo: {orderRejectionReason}</p>
+
+                        )}
                     {/* Caja para crear o actualizar orden */}
                     <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark mb-6">
                         <div className="border-b border-stroke py-4 px-6.5 dark:border-strokedark">
                             <h3 className="font-medium text-black dark:text-white">
                                 {id ? 'Actualizar Orden' : 'Crear Orden'}
                             </h3>
+
                         </div>
+
                         <form onSubmit={handleSubmit}>
                             <div className="p-6.5">
                                 <div className="mb-4.5">

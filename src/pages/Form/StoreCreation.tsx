@@ -39,6 +39,10 @@ const StoreCreation = () => {
                     );
 
                     if (!response.ok) {
+                        if(response.status === 401){
+                            window.sessionStorage.removeItem('authToken');
+                            window.location.href = '/';
+                        }
                         throw new Error('Network response was not ok');
                     }
 
@@ -191,7 +195,7 @@ const StoreCreation = () => {
                                     Telefono <span className="text-meta-1">*</span>
                                 </label>
                                 <input
-                                    type="number"
+                                    type="text"
                                     value={phone}
                                     onChange={(e) => setPhone(e.target.value)}
                                     min={status === 'not_available' ? 0 : 1}
@@ -204,17 +208,21 @@ const StoreCreation = () => {
 
                             <div className="mb-4.5">
                                 <label className="mb-2.5 block text-black dark:text-white">
-                                    Tipo de Tienda <span className="text-meta-1">*</span>
+                                    Tipo de tienda <span className="text-meta-1">*</span>
                                 </label>
-                                <input
-                                    type="text"
+                                <select
                                     value={storeType}
                                     onChange={(e) => setStoreType(e.target.value)}
-                                    placeholder="Ingresa el tipo de tienda"
+                                    disabled={id ? true : false}
                                     required
                                     className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-                                />
+                                >
+                                    <option value="">Seleccione el tipo</option>
+                                    <option value="NORMAL">Normal</option>
+                                    <option value="SUPERVISED">Supervisada</option>
+                                </select>
                             </div>
+
 
 
 

@@ -25,7 +25,7 @@ const ReportOrdersTimeStatusStore = () => {
 
         try {
             const response = await fetch(
-                `http://35.237.124.228/api/v1/orders/report/timeAndStatus?startDate=${startDate}&endDate=${endDate}&status=${status}&storeId=${storeId}`,
+                `http://35.237.124.228/api/v1/orders/report/timeAndStatus?startDate=${startDate}&endDate=${endDate}&storeId=${storeId}&status=${status}`,
                 {
                     method: 'GET',
                     headers: {
@@ -47,7 +47,7 @@ const ReportOrdersTimeStatusStore = () => {
             const result = await response.json();
             console.log(result);
             const reportData = {
-                reportName: "Reporte de ordenes en un intervalo de tiempo,estado y tienda",
+                reportName: "Reporte de productos daniados en un intervalo de tiempo,estado y tienda",
                 elements: result.data,
             };
             const report = await fetch(
@@ -134,7 +134,7 @@ const ReportOrdersTimeStatusStore = () => {
                                     required
                                     className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                                 >
-                                    <option value="">Seleccione el rol</option>
+                                    <option value="">Seleccione el status</option>
                                     <option value="REJECTED">Rechazado</option>
                                     <option value="PENDING">Pendiente de Aprobacion</option>
                                     <option value="REQUESTED">Solicitado</option>
